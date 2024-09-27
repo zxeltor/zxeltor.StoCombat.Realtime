@@ -1,6 +1,7 @@
-# Star Trek Online Combat Real-Time Display [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/STOCombatAnalyzer)](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/releases/latest)
+# Star Trek Online Combat Real-Time Display [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zxeltor.StoCombat.Realtime
+/sto-realtime-128.png)](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/releases/latest)
 
-![The main tab](zxeltor.StoCombat.Analyser/Images/sto-analyzer-128.png)
+![The main tab](zxeltor.StoCombat.Realtime/Images/sto-realtime-128.png)
 
 * [Overview](#overview)
 * [Building](#building)
