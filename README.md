@@ -20,7 +20,7 @@ You could also run the dotnet cli build and run commands from inside the zxeltor
 ---
 
 ## Screen Shots
-Figure 1: What the UI looks like after a successfull parse, and a combat instance was selected in the Combat List dropdown.
+Figure 1: What the application overlays look like on top of STO. You can see the DOUBLE KILL achievement overlay high center screen, and the real-time combat data grid in the upper right.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg))
 
 ---
