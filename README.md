@@ -15,11 +15,10 @@ This application tracks player kills, and awards the player with Unreal Tourname
 ## Details 
 The addon maintains a list of units attacked by the player while in combat. Each unit killed by the player while in combat is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
 
-Your consecutive kill count is reset when you enter a new zone, or player death occurs. This puts you back at the bottom of the achievement list.
+Your consecutive kill count is reset after you've been out of combat for a configured amount of time, or when your player dies. This puts you back at the bottom of the achievement list.
 
 __Note(s):__
 * If you attack a unit, then leave combat with the unit before they die, you won't get credit for the kill.
-* Group unit kills don't count towards a players kill count, unless the player actually attacked the killed unit.
 
 ## Kill Scoring 
 
@@ -37,11 +36,12 @@ Awards for every 5th kill without dying
 Awards for building up chains of kills in quick succession (4 seconds apart or less)
 
 * Double Kill - 2 kills
-* Multi Kill - 3 kills
-* Mega Kill - 4 kills
-* Ultra Kill - 5 kills
-* Monster Kill - 6 kills
-* Ludicrous Kill - 7 kills
+* Tripple Kill - 3 kills
+* Multi Kill - 4 kills
+* Mega Kill - 5 kills
+* Ultra Kill - 6 kills
+* Monster Kill - 7 kills
+* Ludicrous Kill - 8 kills
 * HOLY S**T - 8+ kills
 
 ## Building
@@ -49,16 +49,12 @@ The source in this repo is wrapped up in a Visual Studio 2022 solution. You shou
 
 You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
 
----
-
 ## Screen Shots
 Figure 1: What the application overlays look like on top of STO. You can see the DOUBLE KILL achievement overlay high center screen, and the real-time combat data grid in the upper right.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg)
 
 Figure 2: The main application UI. Use this to configure achievment processing, and the overlay settings.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui.png)
-
----
 
 ## Disclaimer
 This software and any related documentation is provided “as is” without warranty of any kind, either express or implied, including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. Licensee accepts any and all risk arising out of use or performance of Software
