@@ -4,6 +4,7 @@
 
 * [Overview](#overview)
 * [Building](#building)
+* [Screen Shots](#screen-shots)
 * [Disclaimer](#disclaimer)
 
 ---
@@ -15,6 +16,12 @@ This is a PC application used to analyze and display Star Trek Online combat dat
 The source in this repo is wrapped up in a Visual Studio 2022 solution. You should be able to clone this repo localy, then build and run from inside of Visual Studio.
 
 You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
+
+---
+
+## Screen Shots
+Figure 1: What the UI looks like after a successfull parse, and a combat instance was selected in the Combat List dropdown.
+![The main tab](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/zxeltor.StoCombat.Realtime/Images/ScreenShots/overlays_scaled.jpg)
 
 ---
 
