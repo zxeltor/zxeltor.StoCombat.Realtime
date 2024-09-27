@@ -22,8 +22,12 @@
                             VerticalAlignment="Center">
                         <Image Source="../Images/glyphicons-82-refresh.png"></Image>
                     </Button>
-                    <TextBlock Text="Log Entries: " VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="Notifications: " VerticalAlignment="Center"></TextBlock>
                     <TextBlock Text="{Binding Path=LogGridRows.Count}" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="Notification Level:" Margin="16,0,0,0" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox Margin="4,0,0,0" VerticalAlignment="Center"
+                                ItemsSource="{Binding Path=ResultLevels}" 
+                              SelectedItem="{Binding Path=SelectedResultLevel}"></ComboBox>
                 </StackPanel>
             </GroupBox.Header> 
             <DataGrid CanUserAddRows="False" CanUserResizeRows="False" CanUserSortColumns="True" CanUserDeleteRows="False" CanUserReorderColumns="False"
@@ -35,9 +39,10 @@
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp}" IsReadOnly="True"></DataGridTextColumn>
-                    <DataGridTextColumn Header="ResultLevel" Binding="{Binding Path=ResultLevel}" IsReadOnly="True"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Message" Binding="{Binding Path=Message}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneWay}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="ResultLevel" Binding="{Binding Path=ResultLevel, Mode=OneWay}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Message" Binding="{Binding Path=Message, Mode=OneWay}" IsReadOnly="True"></DataGridTextColumn>
+                    <!--<DataGridTextColumn Header="Exception" Binding="{Binding Path=Exception, Mode=OneWay}" IsReadOnly="True"></DataGridTextColumn>-->
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>

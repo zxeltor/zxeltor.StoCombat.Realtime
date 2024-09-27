@@ -6,10 +6,11 @@
 
 namespace zxeltor.StoCombat.Realtime.Classes;
 
-public enum AchievementType
+public enum AchievementPlaybackEnum
 {
     // MultiKill Range
     DOUBLE = 1,
+    TRIPPLE,
     MULTI,
     MEGA,
     MONSTER,
@@ -17,9 +18,11 @@ public enum AchievementType
     LUDICROUS,
     HOLYSHIT,
 
+    // Misc Range
+    DEAD = 30,
+
     // Killing Spree Range
-    DEAD = 20,
-    DOMINATING,
+    DOMINATING = 40,
     FIRSTBLOOD,
     GODLIKE,
     KILLSPREE,

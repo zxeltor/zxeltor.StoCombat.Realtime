@@ -12,6 +12,7 @@ using log4net;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Model.Realtime;
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.Types.Lib.Helpers;
 using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombat.Realtime.Classes;
@@ -20,33 +21,44 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 {
     #region Static Fields and Constants
 
-    private static readonly ILog _log = LogManager.GetLogger(typeof(RealtimeCombatLogMonitor));
+    private static readonly ILog Log = LogManager.GetLogger(typeof(RealtimeCombatLogMonitor));
 
     #endregion
 
     #region Private Fields
 
-    private RealtimeCombat? _currentCombat;
+    private RealtimeCombat? _currentRealtimeCombat;
     private long _errorsCountSinceNewCombat;
     private long _eventsLastAddCount;
     private bool _hasHalted;
     private bool _isRunning;
+
+    private bool _isTestMode;
+    private DateTime? _lastExceptedParsedCombatLogEventTime;
     private long _lastPosition;
+    private TimeSpan _lastTestElapsedTime;
     private DateTime? _lastTimerStartTimeUtc;
     private FileInfo? _latestFileInfo;
+
+    private string? _latestFileName;
+
+    private DateTime? _latestFileUpdated;
     private long _linesLastReadCount;
     private string? _logFileStringResult;
+    private readonly RealtimeCombatLogParseSettings _parserSettings;
     private string? _parserUpdate;
-    private readonly RealtimeCombatLogParseSettings _parseSettings;
     private Timer? _timer;
+
+    private Dispatcher _parentDispatcher;
 
     #endregion
 
     #region Constructors
 
-    public RealtimeCombatLogMonitor(RealtimeCombatLogParseSettings combatLogParseSettings)
+    public RealtimeCombatLogMonitor(Dispatcher parentDispatcher)
     {
-        this._parseSettings = combatLogParseSettings;
+        this._parserSettings = StoCombatRealtimeSettings.Instance.ParseSettings;
+        this._parentDispatcher = parentDispatcher;
     }
 
     #endregion
@@ -65,13 +77,23 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         private set => this.SetField(ref this._isRunning, value);
     }
 
+    public bool IsTestMode
+    {
+        get => this._isTestMode;
+        set => this.SetField(ref this._isTestMode, value);
+    }
+
     public DateTime? LastTimerStartTimeUtc
     {
         get => this._lastTimerStartTimeUtc;
         set => this.SetField(ref this._lastTimerStartTimeUtc, value);
     }
 
-    public DateTime? LatestFileUpdated => this.LatestFileInfo?.LastWriteTime;
+    public DateTime? LatestFileUpdated
+    {
+        get => this._latestFileUpdated;
+        set => this.SetField(ref this._latestFileUpdated, value);
+    }
 
     public FileInfo? LatestFileInfo
     {
@@ -79,8 +101,9 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         set
         {
             this.SetField(ref this._latestFileInfo, value);
-            this.OnPropertyChanged(nameof(this.LatestFileName));
-            this.OnPropertyChanged(nameof(this.LatestFileUpdated));
+
+            this.LatestFileName = value?.Name;
+            this.LatestFileUpdated = value?.LastWriteTime;
         }
     }
 
@@ -102,13 +125,17 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         set => this.SetField(ref this._linesLastReadCount, value);
     }
 
-    public RealtimeCombat? CurrentCombat
+    public RealtimeCombat? CurrentRealtimeCombat
     {
-        get => this._currentCombat;
-        set => this.SetField(ref this._currentCombat, value);
+        get => this._currentRealtimeCombat;
+        set => this._parentDispatcher.Invoke(() => this.SetField(ref this._currentRealtimeCombat, value));
     }
 
-    public string? LatestFileName => this.LatestFileInfo?.Name;
+    public string? LatestFileName
+    {
+        get => this._latestFileName;
+        set => this.SetField(ref this._latestFileName, value);
+    }
 
     public string? ParserUpdate
     {
@@ -116,31 +143,25 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         set => this.SetField(ref this._parserUpdate, value);
     }
 
-    private TimeSpan HowLongBeforeNewCombatInSeconds =>
-        TimeSpan.FromSeconds(this._parseSettings.HowLongBeforeNewCombatInSeconds);
+    //private TimeSpan HowLongAfterNoCombatBeforeRemoveFromGridInSeconds =>
+    //    TimeSpan.FromMinutes(this._parserSettings.HowLongAfterNoCombatBeforeRemoveFromGridInSeconds);
+
+    //private TimeSpan HowLongBeforeNewCombatInSeconds =>
+    //    TimeSpan.FromSeconds(this._parserSettings.HowLongBeforeNewCombatInSeconds);
+
+    public TimeSpan LastTestElapsedTime
+    {
+        get => this._lastTestElapsedTime;
+        set => this.SetField(ref this._lastTestElapsedTime, value);
+    }
 
     #endregion
 
     #region Public Members
 
-    public event EventHandler<AchievementEvent> AccountPlayerEvents;
-
     public void Dispose()
     {
-        try
-        {
-            this.IsRunning = false;
-            this._timer?.Change(Timeout.Infinite, Timeout.Infinite);
-            this._timer?.Dispose();
-            this._timer = null;
-            this.ParserUpdate = null;
-        }
-        catch (Exception e)
-        {
-            this.ParserUpdate = "Failed to dispose of parser.";
-
-            _log.Error(this.ParserUpdate, e);
-        }
+        this.Stop();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -157,14 +178,40 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                 this.ParserUpdate = null;
             }
 
+            this.ValidateRequiredParserSettings();
+
             this._timer = new Timer(this.TimerCallBack, null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
+        }
+        catch (ParserHaltException pe)
+        {
+            this.HasHalted = true;
+            Log.Error(pe.Message, pe);
+            AppCommunicationsManager.Instance.SendNotification(this, pe, ResultLevel.Halt);
         }
         catch (Exception e)
         {
             this.IsRunning = false;
             this.ParserUpdate = "Failed to start parser.";
 
-            _log.Error(this.ParserUpdate, e);
+            Log.Error(this.ParserUpdate, e);
+        }
+    }
+
+    public void Stop()
+    {
+        try
+        {
+            this.IsRunning = false;
+            this._timer?.Change(Timeout.Infinite, Timeout.Infinite);
+            this._timer?.Dispose();
+            this._timer = null;
+            this.ParserUpdate = null;
+        }
+        catch (Exception e)
+        {
+            this.ParserUpdate = "Failed to dispose of parser.";
+
+            Log.Error(this.ParserUpdate, e);
         }
     }
 
@@ -172,64 +219,137 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 
     #region Other Members
 
+    private void AddTestDataToCombat()
+    {
+        if (this.CurrentRealtimeCombat == null) return;
+
+        var dateTimeNow = DateTime.Now;
+        var startDateTime = dateTimeNow - this._parserSettings.TimeSpanHowOftenParseLogs;
+
+        var randomGen = new Random();
+
+        foreach (var player in this.CurrentRealtimeCombat.PlayerEntities)
+        {
+            var currentDateTime = startDateTime;
+
+            while (currentDateTime <= dateTimeNow)
+            {
+                currentDateTime = currentDateTime.AddMilliseconds(100);
+
+                player.AddCombatEvent(new CombatEvent
+                {
+                    Type = "Phaser", Flags = "Kill", EventDisplay = "phaser", Magnitude = randomGen.Next(0, 1000),
+                    MagnitudeBase = randomGen.Next(0, 1000), Timestamp = currentDateTime
+                });
+            }
+        }
+    }
+
+    private void DetermineIfCombatEventIsAchievement(CombatEvent combatEvent)
+    {
+        var isKillEvent = combatEvent.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase);
+        if (isKillEvent)
+        {
+            if (string.IsNullOrWhiteSpace(this._parserSettings.MyCharacter)) return;
+
+            if (combatEvent.IsTargetPlayer &&
+                combatEvent.TargetInternal.Contains(this._parserSettings.MyCharacter,
+                    StringComparison.CurrentCultureIgnoreCase))
+                AppCommunicationsManager.Instance.SendAchievementEvent(this, AchievementEvent.Death);
+            else if (combatEvent.OwnerInternal.Contains(this._parserSettings.MyCharacter,
+                         StringComparison.CurrentCultureIgnoreCase))
+                AppCommunicationsManager.Instance.SendAchievementEvent(this, AchievementEvent.Kill);
+            else if (this._parserSettings.IsIncludeAssistedKillsInAchievements)
+                if (this.CurrentRealtimeCombat != null)
+                {
+                    var myPlayer = this.CurrentRealtimeCombat.PlayerEntities.FirstOrDefault(ent =>
+                        ent.OwnerInternal.Contains(this._parserSettings.MyCharacter,
+                            StringComparison.CurrentCultureIgnoreCase));
+
+                    if (myPlayer != null)
+                    {
+                        var killedEntityFoundInMyPlayerTargetList =
+                            myPlayer.CombatEventsList.Any(evt =>
+                                evt.TargetInternal.Equals(combatEvent.TargetInternal));
+
+                        if (killedEntityFoundInMyPlayerTargetList)
+                            AppCommunicationsManager.Instance.SendAchievementEvent(this, AchievementEvent.Kill);
+                    }
+                }
+        }
+    }
+
     /// <summary>
     ///     Run this on each pass of the parser timer to take players out of combat, if they haven't
     ///     been active for the configured timespan.
     /// </summary>
-    private void CleanupCurrentCombat()
+    private void ExpireInactivePlayersOrCombat()
     {
-        if (this.CurrentCombat == null || this.CurrentCombat.PlayerEntities == null) return;
+        if (this.CurrentRealtimeCombat == null || this.CurrentRealtimeCombat.PlayerEntities.Count == 0) return;
 
-        foreach (var player in this.CurrentCombat.PlayerEntities)
+        foreach (var player in this.CurrentRealtimeCombat.PlayerEntities.ToList())
+        {
             // If a player entity hasn't received an update in the configured timespan, then
             // mark it as not in combat.
-            if (DateTime.Now - player.EntityCombatEnd > this.HowLongBeforeNewCombatInSeconds)
+            if (DateTime.Now - player.EntityCombatEnd > this._parserSettings.TimeSpanHowLongBeforeNewCombat)
                 player.IsInCombat = false;
+
+            if (this._parserSettings.TimeSpanHowLongAfterNoCombatBeforeRemoveFromGrid <= TimeSpan.Zero &&
+                !player.IsInCombat)
+            {
+                if (this.CurrentRealtimeCombat!.PlayerEntities.Count > 1)
+                    this.CurrentRealtimeCombat.PlayerEntities.Remove(player);
+                else
+                    this.CurrentRealtimeCombat = null;
+            }
+            else if (this._parserSettings.TimeSpanHowLongAfterNoCombatBeforeRemoveFromGrid > TimeSpan.Zero &&
+                     !player.IsInCombat
+                     && DateTime.Now - player.EntityCombatEnd >
+                     this._parserSettings.TimeSpanHowLongAfterNoCombatBeforeRemoveFromGrid)
+            {
+                if (this.CurrentRealtimeCombat!.PlayerEntities.Count > 1)
+                    this.CurrentRealtimeCombat.PlayerEntities.Remove(player);
+                else
+                    this.CurrentRealtimeCombat = null;
+            }
+        }
     }
 
-    /// <summary>
-    ///     A simple validator to confirm the configured STO combat log folder was found, and we have
-    ///     a valid file to parse.
-    /// </summary>
-    /// <returns>True if we have a recent STO combat log to parse. False otherwise.</returns>
-    /// <exception cref="ParserHaltException">Can be thrown when folder or file validation fails.</exception>
-    private bool FolderAndRecentLogFileIsAvailable()
+    private bool IsCombatEventValid(CombatEvent combatEvent)
     {
-        if (string.IsNullOrWhiteSpace(this._parseSettings.CombatLogPath) ||
-            !Directory.Exists(this._parseSettings.CombatLogPath))
-            throw new ParserHaltException("STO combat log folder not found. Check setting: CombatLogPath");
-
-        // Get the latest STO combat log based on it's last write time.
-        var fileToParse = Directory.GetFiles(this._parseSettings.CombatLogPath,
-                this._parseSettings.CombatLogPathFilePattern).ToList()
-            .Select(filepath => new FileInfo(filepath)).MaxBy(fileInfo => fileInfo.LastWriteTime);
-
-        if (fileToParse == null)
-            throw new ParserHaltException(
-                "No STO combat log could be found. Confirm you've enabled combat logging in STO, and double check setting: CombatLogPathFilePattern");
-
-        if (this.LastTimerStartTimeUtc - fileToParse.LastWriteTimeUtc > this.HowLongBeforeNewCombatInSeconds)
+        if (this._lastExceptedParsedCombatLogEventTime == null)
         {
-            this.LatestFileInfo = fileToParse;
-
-            if (this.CurrentCombat != null) this.CurrentCombat.SendRealtimeUpdateNotifications();
-            this.ParserUpdate =
-                $"A STO combat log file was found, but it hasn't updated in last {this.HowLongBeforeNewCombatInSeconds.TotalSeconds} seconds.";
-            return false;
+            if (DateTime.Now - combatEvent.Timestamp >
+                TimeSpan.FromSeconds(this._parserSettings.HowOftenParseLogsInSeconds * 2)) return false;
+        }
+        else
+        {
+            if (combatEvent.Timestamp < this._lastExceptedParsedCombatLogEventTime) return false;
         }
 
-        // We check here to see if a new, or more recently updated log file was found.
-        if (this.LatestFileInfo == null || !this.LatestFileInfo.Name.Equals(fileToParse.Name))
+        if (this.CurrentRealtimeCombat != null && this.CurrentRealtimeCombat.AllCombatEvents != null)
         {
-            this._lastPosition = 0;
+            if (combatEvent.IsOwnerPlayer && this.CurrentRealtimeCombat.PlayerEntities.Count > 1 &&
+                this.CurrentRealtimeCombat.EventsCount > 1000)
+            {
+                var player = this.CurrentRealtimeCombat.PlayerEntities.FirstOrDefault(evt =>
+                    evt.OwnerInternal.Equals(combatEvent.OwnerInternal));
+
+                if (player != null)
+                {
+                    if (player.CombatEventsList.Contains(combatEvent)) return false;
+                }
+                else
+                {
+                    if (this.CurrentRealtimeCombat.AllCombatEvents.Contains(combatEvent)) return false;
+                }
+            }
+            else
+            {
+                if (this.CurrentRealtimeCombat.AllCombatEvents.Contains(combatEvent)) return false;
+            }
         }
 
-        this.LatestFileInfo = fileToParse;
-
-        // Update the Combat object in the UI, regardless of getting a file update.
-        if (this.CurrentCombat != null) this.CurrentCombat.SendRealtimeUpdateNotifications();
-
-        this.ParserUpdate = $"Log last updated: {fileToParse.LastWriteTimeUtc:HH:mm:ss:fff}.";
         return true;
     }
 
@@ -263,10 +383,16 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
             {
                 var lineCounter = 0;
                 var eventsAdded = 0;
+                var firstEventWasExcepted = false;
                 while (!reader.EndOfStream)
                 {
                     this._logFileStringResult = reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(this._logFileStringResult)) continue;
+                    if (string.IsNullOrWhiteSpace(this._logFileStringResult))
+                    {
+                        //AppCommunicationsManager.Instance.SendNotification(this, "An empty line was returned.",
+                        //    ResultLevel.Debug);
+                        continue;
+                    }
 
                     try
                     {
@@ -275,48 +401,46 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                         // Use our new combat event object to parse the log file line.
                         var combatEvent = new CombatEvent(this.LatestFileInfo.Name, this._logFileStringResult, 0);
 
+                        // A good faith effort to make sure we're not processing the same log file entry again.
+                        if (!firstEventWasExcepted && !this.IsCombatEventValid(combatEvent)) continue;
+
+                        firstEventWasExcepted = true;
+                        this._lastExceptedParsedCombatLogEventTime = combatEvent.Timestamp;
+
+                        // If we have unreal announcements available, look for kill or death events related to the player account.
+                        if (this._parserSettings.IsUnrealAnnouncementsEnabled &&
+                            !string.IsNullOrWhiteSpace(this._parserSettings.MyCharacter))
+                            this.DetermineIfCombatEventIsAchievement(combatEvent);
+
                         // If the entry doesn't belong to a player, or it falls outside our timespan, we 
                         // ignore it and move on.
                         if (!combatEvent.IsOwnerPlayer) continue;
-                        if (DateTime.Now - combatEvent.Timestamp > this.HowLongBeforeNewCombatInSeconds)
-                            continue;
-
-                        // If we have unreal announcements available, look for kill or death events related to the player account.
-                        if (this._parseSettings.IsUnrealAnnouncementsEnabled &&
-                            !string.IsNullOrWhiteSpace(this._parseSettings.MyCharacter))
-                        {
-                            if (combatEvent.OwnerInternal.Contains(this._parseSettings.MyCharacter,
-                                    StringComparison.CurrentCultureIgnoreCase)
-                                && combatEvent.Flags.Contains("kill",
-                                    StringComparison.CurrentCultureIgnoreCase))
-                                this.SendEvent(AchievementEvent.Kill);
-                            else if (combatEvent.TargetInternal.Contains(this._parseSettings.MyCharacter,
-                                         StringComparison.CurrentCultureIgnoreCase)
-                                     && combatEvent.Flags.Contains("kill",
-                                         StringComparison.CurrentCultureIgnoreCase))
-                                this.SendEvent(AchievementEvent.Death);
-                        }
 
                         // Update our current combat instance with the latest player related events for display purposes.
-                        if (this.CurrentCombat == null || combatEvent.Timestamp - this.CurrentCombat.CombatEnd >
-                            this.HowLongBeforeNewCombatInSeconds)
+                        if (this.CurrentRealtimeCombat == null)
                         {
-                            this.CurrentCombat = null;
                             this.ErrorsCountSinceNewCombat = 0;
-                            this.CurrentCombat = new RealtimeCombat(combatEvent, this._parseSettings);
-                            this.SendEvent(AchievementEvent.Reset);
+
+                            //this._parentDispatcher.Invoke(() =>
+                            //{
+                                this.CurrentRealtimeCombat = null;
+                                this.CurrentRealtimeCombat = new RealtimeCombat(combatEvent, this._parserSettings);
+                            //});
+
+                            AppCommunicationsManager.Instance.SendAchievementEvent(this, AchievementEvent.Reset);
                             eventsAdded++;
                         }
                         else
                         {
-                            this.CurrentCombat.AddCombatEvent(combatEvent, this._parseSettings);
+                            this.CurrentRealtimeCombat.AddCombatEvent(combatEvent, this._parserSettings);
                             eventsAdded++;
                         }
                     }
                     catch (Exception e)
                     {
                         this.ErrorsCountSinceNewCombat++;
-                        _log.Error($"Error parsing line: {this._logFileStringResult}", e);
+                        Log.Error($"Error parsing line: {e.Message}", e);
+                        //AppCommunicationsManager.Instance.SendNotification(this, $"Error parsing line: {e.Message}", e, ResultLevel.Error);
                     }
                 }
 
@@ -345,10 +469,16 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 
                 var lineCounter = 0;
                 var eventsAdded = 0;
+                var firstEventWasExcepted = false;
                 while (!reader.EndOfStream)
                 {
                     this._logFileStringResult = reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(this._logFileStringResult)) continue;
+                    if (string.IsNullOrWhiteSpace(this._logFileStringResult))
+                    {
+                        //AppCommunicationsManager.Instance.SendNotification(this, "An empty line was returned.",
+                        //    ResultLevel.Debug);
+                        continue;
+                    }
 
                     try
                     {
@@ -357,32 +487,45 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                         // Use our new combat event object to parse the log file line.
                         var combatEvent = new CombatEvent(this.LatestFileInfo.Name, this._logFileStringResult, 0);
 
+                        //// If the entry doesn't belong to a player, or it falls outside our timespan, we 
+                        //// ignore it and move on.
+                        //if (!combatEvent.IsOwnerPlayer) continue;
+
+                        // A good faith effort to make sure we're not processing the same log file entry again.
+                        if (!firstEventWasExcepted && !this.IsCombatEventValid(combatEvent)) continue;
+
+                        firstEventWasExcepted = true;
+                        this._lastExceptedParsedCombatLogEventTime = combatEvent.Timestamp;
+
                         // If the entry doesn't belong to a player, or it falls outside our timespan, we 
                         // ignore it and move on.
                         if (!combatEvent.IsOwnerPlayer) continue;
-                        if (DateTime.Now - combatEvent.Timestamp > this.HowLongBeforeNewCombatInSeconds)
-                            continue;
 
                         // Update our current combat instance with the latest player related events for display purposes.
-                        if (this.CurrentCombat == null || combatEvent.Timestamp - this.CurrentCombat.CombatEnd >
-                            this.HowLongBeforeNewCombatInSeconds)
+                        if (this.CurrentRealtimeCombat == null)
                         {
-                            this.CurrentCombat = null;
                             this.ErrorsCountSinceNewCombat = 0;
-                            this.CurrentCombat = new RealtimeCombat(combatEvent, this._parseSettings);
-                            this.SendEvent(AchievementEvent.Reset);
+
+                            //this._parentDispatcher.Invoke(() =>
+                            //{
+                                this.CurrentRealtimeCombat = null;
+                                this.CurrentRealtimeCombat = new RealtimeCombat(combatEvent, this._parserSettings);
+                            //});
+
+                            AppCommunicationsManager.Instance.SendAchievementEvent(this, AchievementEvent.Reset);
                             eventsAdded++;
                         }
                         else
                         {
-                            this.CurrentCombat.AddCombatEvent(combatEvent, this._parseSettings);
+                            this.CurrentRealtimeCombat.AddCombatEvent(combatEvent, this._parserSettings);
                             eventsAdded++;
                         }
                     }
                     catch (Exception e)
                     {
                         this.ErrorsCountSinceNewCombat++;
-                        _log.Error($"Error parsing line: {this._logFileStringResult}", e);
+                        Log.Error($"Error parsing line: {e.Message}", e);
+                        //AppCommunicationsManager.Instance.SendNotification(this, $"Error parsing line: {e.Message}", ResultLevel.Error);
                     }
                 }
 
@@ -392,20 +535,56 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         }
     }
 
-    /// <summary>
-    ///     Attempt to send achievement events to <see cref="AchievementPlaybackManager" />
-    /// </summary>
-    /// <param name="achievementEvent"></param>
-    private void SendEvent(AchievementEvent achievementEvent)
-    {
-        if (this.AccountPlayerEvents != null) Task.Run(() => this.AccountPlayerEvents(this, achievementEvent));
-    }
+    ///// <summary>
+    /////     Attempt to send achievement events to <see cref="AchievementPlaybackManager" />
+    ///// </summary>
+    ///// <param name="achievementEvent"></param>
+    //private void SendEvent(AchievementEvent achievementEvent)
+    //{
+    //    if (this.AccountPlayerEvents != null) Task.Run(() => this.AccountPlayerEvents(this, achievementEvent));
+    //}
 
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
         field = value;
         this.OnPropertyChanged(propertyName);
+        return true;
+    }
+
+    /// <summary>
+    ///     A simple validator to confirm the configured STO combat log folder was found, and we have
+    ///     a valid file to parse.
+    /// </summary>
+    /// <returns>True if we have a recent STO combat log to parse. False otherwise.</returns>
+    /// <exception cref="ParserHaltException">Can be thrown when folder or file validation fails.</exception>
+    private bool StoCombatLogIsAvailableAndHasUpdates()
+    {
+        // Get the latest STO combat log based on it's last write time.
+        if (string.IsNullOrWhiteSpace(this._parserSettings.CombatLogPath) ||
+            !Directory.Exists(this._parserSettings.CombatLogPath))
+            throw new ParserHaltException("STO combat log folder not found. Check setting: CombatLogPath");
+
+        if (string.IsNullOrWhiteSpace(this._parserSettings.CombatLogPathFilePattern))
+            throw new ParserHaltException(
+                "STO combat log file pattern not set. Check setting: CombatLogPathFilePattern");
+
+        var fileToParse = Directory
+            .GetFiles(this._parserSettings.CombatLogPath, this._parserSettings.CombatLogPathFilePattern)
+            .ToList().Select(filepath => new FileInfo(filepath)).MaxBy(fileInfo => fileInfo.LastWriteTime);
+
+        if (fileToParse == null)
+        {
+            this.LatestFileName = "No combat log file found.";
+            return false;
+        }
+
+        if (this.LatestFileInfo == null || !this.LatestFileInfo.Name.Equals(fileToParse.Name))
+            this._lastPosition = 0;
+        else if (this.LatestFileUpdated >= fileToParse.LastWriteTime) return false;
+
+        this.LatestFileInfo = fileToParse;
+
         return true;
     }
 
@@ -423,44 +602,94 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 
             this._timer?.Change(Timeout.Infinite, Timeout.Infinite);
 
-            this.CleanupCurrentCombat();
+            this.ValidateRequiredParserSettings();
 
-            if (string.IsNullOrWhiteSpace(this._parseSettings.MyCharacter))
-                throw new ParserHaltException("MyCharacter is not set.");
+            // If STO isn't running, then no point in continuing. Let's halt the parser.
+            if (!this.IsTestMode)
+            {
+                var stoInstanceCount = ProcessHelper.RunningProcessInstanceCount(Path.GetFileNameWithoutExtension(StoCombatRealtimeSettings.Instance.StoAppName));
+                if (stoInstanceCount == 0)
+                    throw new ParserHaltException("STO is not running.");
+            }
 
-            if (!this.FolderAndRecentLogFileIsAvailable()) return;
+            this.ExpireInactivePlayersOrCombat();
 
-            if (this._lastPosition == 0)
-                this.ProcessNewFile();
+            if (this.IsTestMode)
+            {
+                this.AddTestDataToCombat();
+            }
             else
-                this.ProcessCurrentFile();
+            {
+                if (!this.StoCombatLogIsAvailableAndHasUpdates())
+                {
+                    this.LinesLastReadCount = 0;
+                    this.EventsLastAddCount = 0;
+                    return;
+                }
+
+                if (this._lastPosition == 0)
+                    this.ProcessNewFile();
+                else
+                    this.ProcessCurrentFile();
+            }
+
+            if (this.CurrentRealtimeCombat != null) this.CurrentRealtimeCombat.Refresh();
+
+            this.LastTestElapsedTime = DateTime.UtcNow - this.LastTimerStartTimeUtc.Value;
+
+            //Log.Info($"this.LastTestElapsedTime: {this.LastTestElapsedTime}");
         }
         catch (ParserHaltException e)
         {
             this.IsRunning = false;
             this.HasHalted = true;
-            _log.Error(e);
-            AppNotificationManager.Instance.SendNotification(this, e, ResultLevel.Halt);
+            Log.Error(e.Message, e);
+            AppCommunicationsManager.Instance.SendNotification(this, e.Message, ResultLevel.Halt);
         }
         catch (Exception e)
         {
             this.ErrorsCountSinceNewCombat++;
-            _log.Error("Failed during STO combat log parse.", e);
-            AppNotificationManager.Instance.SendNotification(this, "Failed during STO combat log parse.", e);
+            var errorMessage = $"Parser failure: {e.Message}";
+            Log.Error(errorMessage, e);
+            //AppCommunicationsManager.Instance.SendNotification(this, errorMessage, e);
         }
         finally
         {
             if (this.IsRunning)
             {
-                var restartTimeSpan = TimeSpan.FromSeconds(this._parseSettings.HowOftenParseLogsInSeconds)
+                var restartTimeSpan = TimeSpan.FromSeconds(this._parserSettings.HowOftenParseLogsInSeconds)
                     .Subtract(DateTime.UtcNow - this.LastTimerStartTimeUtc!.Value);
                 if (restartTimeSpan > TimeSpan.Zero)
-                    this._timer?.Change(TimeSpan.FromSeconds(this._parseSettings.HowOftenParseLogsInSeconds),
+                    this._timer?.Change(TimeSpan.FromSeconds(this._parserSettings.HowOftenParseLogsInSeconds),
                         Timeout.InfiniteTimeSpan);
                 else
                     this._timer?.Change(TimeSpan.Zero, Timeout.InfiniteTimeSpan);
             }
         }
+    }
+
+    /// <summary>
+    ///     Confirm required parameters are set.
+    /// </summary>
+    /// <exception cref="ParserHaltException">A required parser settings isn't set.</exception>
+    private void ValidateRequiredParserSettings()
+    {
+        if (this._parserSettings.HowOftenParseLogsInSeconds < 1)
+            throw new ParserHaltException("HowOftenParseLogs needs to be greater then 1.");
+
+        if (this._parserSettings.HowLongBeforeNewCombatInSeconds < 1)
+            throw new ParserHaltException("HowLongBeforeNewCombatInSeconds needs to be greater then 1.");
+
+        if (string.IsNullOrWhiteSpace(this._parserSettings.CombatLogPath) ||
+            !Directory.Exists(this._parserSettings.CombatLogPath))
+            throw new ParserHaltException("STO combat log folder not found. Check setting: CombatLogPath");
+
+        if (string.IsNullOrWhiteSpace(this._parserSettings.CombatLogPathFilePattern))
+            throw new ParserHaltException(
+                "STO combat log file pattern not set. Check setting: CombatLogPathFilePattern");
+
+        if (string.IsNullOrWhiteSpace(this._parserSettings.MyCharacter))
+            throw new ParserHaltException("MyCharacter is not set.");
     }
 
     #endregion

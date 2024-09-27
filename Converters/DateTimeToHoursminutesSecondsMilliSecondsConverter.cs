@@ -21,7 +21,7 @@ public class DateTimeToHoursminutesSecondsMilliSecondsConverter : IValueConverte
     {
         if (value == null) return null;
 
-        return ((DateTime)value).ToString("H:mm:ss.fff");
+        return ((DateTime)value).ToString("h:mm:ss tt");
     }
 
     /// <inheritdoc />

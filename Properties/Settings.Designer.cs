@@ -26,204 +26,288 @@ namespace zxeltor.StoCombat.Realtime.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string CombatLogPath {
+        public string CombatLogPath2 {
             get {
-                return ((string)(this["CombatLogPath"]));
+                return ((string)(this["CombatLogPath2"]));
             }
             set {
-                this["CombatLogPath"] = value;
+                this["CombatLogPath2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("combatlog*.log")]
-        public string CombatLogPathFilePattern {
+        public string CombatLogPathFilePattern2 {
             get {
-                return ((string)(this["CombatLogPathFilePattern"]));
+                return ((string)(this["CombatLogPathFilePattern2"]));
             }
             set {
-                this["CombatLogPathFilePattern"] = value;
+                this["CombatLogPathFilePattern2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public int HowLongBeforeNewCombatInSeconds {
+        public int HowLongBeforeNewCombatInSeconds2 {
             get {
-                return ((int)(this["HowLongBeforeNewCombatInSeconds"]));
+                return ((int)(this["HowLongBeforeNewCombatInSeconds2"]));
             }
             set {
-                this["HowLongBeforeNewCombatInSeconds"] = value;
+                this["HowLongBeforeNewCombatInSeconds2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string MyCharacter {
+        public string MyCharacter2 {
             get {
-                return ((string)(this["MyCharacter"]));
+                return ((string)(this["MyCharacter2"]));
             }
             set {
-                this["MyCharacter"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsEnableInactiveTimeCalculations {
-            get {
-                return ((bool)(this["IsEnableInactiveTimeCalculations"]));
-            }
-            set {
-                this["IsEnableInactiveTimeCalculations"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int MinInActiveInSeconds {
-            get {
-                return ((int)(this["MinInActiveInSeconds"]));
-            }
-            set {
-                this["MinInActiveInSeconds"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public int HowOftenPullDataFromLogFilesSeconds {
-            get {
-                return ((int)(this["HowOftenPullDataFromLogFilesSeconds"]));
-            }
-            set {
-                this["HowOftenPullDataFromLogFilesSeconds"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsDebugLoggingEnabled {
-            get {
-                return ((bool)(this["IsDebugLoggingEnabled"]));
-            }
-            set {
-                this["IsDebugLoggingEnabled"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsUnrealAnnouncementsEnabled {
-            get {
-                return ((bool)(this["IsUnrealAnnouncementsEnabled"]));
-            }
-            set {
-                this["IsUnrealAnnouncementsEnabled"] = value;
+                this["MyCharacter2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool IsKeepPlayersInListAfterCombat {
+        public bool IsEnableInactiveTimeCalculations2 {
             get {
-                return ((bool)(this["IsKeepPlayersInListAfterCombat"]));
+                return ((bool)(this["IsEnableInactiveTimeCalculations2"]));
             }
             set {
-                this["IsKeepPlayersInListAfterCombat"] = value;
+                this["IsEnableInactiveTimeCalculations2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6")]
+        public int MinInActiveInSeconds2 {
+            get {
+                return ((int)(this["MinInActiveInSeconds2"]));
+            }
+            set {
+                this["MinInActiveInSeconds2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDebugLoggingEnabled2 {
+            get {
+                return ((bool)(this["IsDebugLoggingEnabled2"]));
+            }
+            set {
+                this["IsDebugLoggingEnabled2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsUnrealAnnouncementsEnabled2 {
+            get {
+                return ((bool)(this["IsUnrealAnnouncementsEnabled2"]));
+            }
+            set {
+                this["IsUnrealAnnouncementsEnabled2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public int MultiKillWaitInSeconds {
+        public int MultiKillWaitInSeconds2 {
             get {
-                return ((int)(this["MultiKillWaitInSeconds"]));
+                return ((int)(this["MultiKillWaitInSeconds2"]));
             }
             set {
-                this["MultiKillWaitInSeconds"] = value;
+                this["MultiKillWaitInSeconds2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsCalculateAssitedKills {
+        public bool IsCalculateAssitedKills2 {
             get {
-                return ((bool)(this["IsCalculateAssitedKills"]));
+                return ((bool)(this["IsCalculateAssitedKills2"]));
             }
             set {
-                this["IsCalculateAssitedKills"] = value;
+                this["IsCalculateAssitedKills2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsIncludeAssistedKillsInAchievements {
+        public bool IsIncludeAssistedKillsInAchievements2 {
             get {
-                return ((bool)(this["IsIncludeAssistedKillsInAchievements"]));
+                return ((bool)(this["IsIncludeAssistedKillsInAchievements2"]));
             }
             set {
-                this["IsIncludeAssistedKillsInAchievements"] = value;
+                this["IsIncludeAssistedKillsInAchievements2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int HowOftenParseLogsInSeconds {
+        public int HowOftenParseLogsInSeconds2 {
             get {
-                return ((int)(this["HowOftenParseLogsInSeconds"]));
+                return ((int)(this["HowOftenParseLogsInSeconds2"]));
             }
             set {
-                this["HowOftenParseLogsInSeconds"] = value;
+                this["HowOftenParseLogsInSeconds2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool IsProcessKillingSpreeAnnouncements {
+        public bool IsProcessKillingSpreeAnnouncements2 {
             get {
-                return ((bool)(this["IsProcessKillingSpreeAnnouncements"]));
+                return ((bool)(this["IsProcessKillingSpreeAnnouncements2"]));
             }
             set {
-                this["IsProcessKillingSpreeAnnouncements"] = value;
+                this["IsProcessKillingSpreeAnnouncements2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool IsProcessMultiKillAnnouncements {
+        public bool IsProcessMultiKillAnnouncements2 {
             get {
-                return ((bool)(this["IsProcessMultiKillAnnouncements"]));
+                return ((bool)(this["IsProcessMultiKillAnnouncements2"]));
             }
             set {
-                this["IsProcessMultiKillAnnouncements"] = value;
+                this["IsProcessMultiKillAnnouncements2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int AnnouncementPlaybackVolumePercentage {
+        public int AnnouncementPlaybackVolumePercentage2 {
             get {
-                return ((int)(this["AnnouncementPlaybackVolumePercentage"]));
+                return ((int)(this["AnnouncementPlaybackVolumePercentage2"]));
             }
             set {
-                this["AnnouncementPlaybackVolumePercentage"] = value;
+                this["AnnouncementPlaybackVolumePercentage2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string OverlayWindowContextString2 {
+            get {
+                return ((string)(this["OverlayWindowContextString2"]));
+            }
+            set {
+                this["OverlayWindowContextString2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsProcessKillingSpreeSplash2 {
+            get {
+                return ((bool)(this["IsProcessKillingSpreeSplash2"]));
+            }
+            set {
+                this["IsProcessKillingSpreeSplash2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsProcessMultiKillSplash2 {
+            get {
+                return ((bool)(this["IsProcessMultiKillSplash2"]));
+            }
+            set {
+                this["IsProcessMultiKillSplash2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsProcessMiscSplash2 {
+            get {
+                return ((bool)(this["IsProcessMiscSplash2"]));
+            }
+            set {
+                this["IsProcessMiscSplash2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsProcessMiscAnnouncements2 {
+            get {
+                return ((bool)(this["IsProcessMiscAnnouncements2"]));
+            }
+            set {
+                this["IsProcessMiscAnnouncements2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AchivementOverlayWindowContextString2 {
+            get {
+                return ((string)(this["AchivementOverlayWindowContextString2"]));
+            }
+            set {
+                this["AchivementOverlayWindowContextString2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDisplayToolsTab2 {
+            get {
+                return ((bool)(this["IsDisplayToolsTab2"]));
+            }
+            set {
+                this["IsDisplayToolsTab2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int HowLongAfterNoCombatBeforeRemoveFromGridInSeconds2 {
+            get {
+                return ((int)(this["HowLongAfterNoCombatBeforeRemoveFromGridInSeconds2"]));
+            }
+            set {
+                this["HowLongAfterNoCombatBeforeRemoveFromGridInSeconds2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StoCombatRealtimeSettings {
+            get {
+                return ((string)(this["StoCombatRealtimeSettings"]));
+            }
+            set {
+                this["StoCombatRealtimeSettings"] = value;
             }
         }
     }

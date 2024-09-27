@@ -2,56 +2,77 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="zxeltor.StoCombat.Realtime.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="CombatLogPath" Type="System.String" Scope="User">
+    <Setting Name="CombatLogPath2" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="CombatLogPathFilePattern" Type="System.String" Scope="User">
+    <Setting Name="CombatLogPathFilePattern2" Type="System.String" Scope="User">
       <Value Profile="(Default)">combatlog*.log</Value>
     </Setting>
-    <Setting Name="HowLongBeforeNewCombatInSeconds" Type="System.Int32" Scope="User">
+    <Setting Name="HowLongBeforeNewCombatInSeconds2" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
-    <Setting Name="MyCharacter" Type="System.String" Scope="User">
+    <Setting Name="MyCharacter2" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="IsEnableInactiveTimeCalculations" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="MinInActiveInSeconds" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="HowOftenPullDataFromLogFilesSeconds" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4</Value>
-    </Setting>
-    <Setting Name="IsDebugLoggingEnabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="IsUnrealAnnouncementsEnabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="IsKeepPlayersInListAfterCombat" Type="System.Boolean" Scope="User">
+    <Setting Name="IsEnableInactiveTimeCalculations2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="MultiKillWaitInSeconds" Type="System.Int32" Scope="User">
+    <Setting Name="MinInActiveInSeconds2" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">6</Value>
+    </Setting>
+    <Setting Name="IsDebugLoggingEnabled2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="IsUnrealAnnouncementsEnabled2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="MultiKillWaitInSeconds2" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4</Value>
     </Setting>
-    <Setting Name="IsCalculateAssitedKills" Type="System.Boolean" Scope="User">
+    <Setting Name="IsCalculateAssitedKills2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="IsIncludeAssistedKillsInAchievements" Type="System.Boolean" Scope="User">
+    <Setting Name="IsIncludeAssistedKillsInAchievements2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="HowOftenParseLogsInSeconds" Type="System.Int32" Scope="User">
+    <Setting Name="HowOftenParseLogsInSeconds2" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3</Value>
     </Setting>
-    <Setting Name="IsProcessKillingSpreeAnnouncements" Type="System.Boolean" Scope="User">
+    <Setting Name="IsProcessKillingSpreeAnnouncements2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="IsProcessMultiKillAnnouncements" Type="System.Boolean" Scope="User">
+    <Setting Name="IsProcessMultiKillAnnouncements2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="AnnouncementPlaybackVolumePercentage" Type="System.Int32" Scope="User">
+    <Setting Name="AnnouncementPlaybackVolumePercentage2" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="OverlayWindowContextString2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="IsProcessKillingSpreeSplash2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="IsProcessMultiKillSplash2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="IsProcessMiscSplash2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="IsProcessMiscAnnouncements2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AchivementOverlayWindowContextString2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="IsDisplayToolsTab2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="HowLongAfterNoCombatBeforeRemoveFromGridInSeconds2" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="StoCombatRealtimeSettings" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

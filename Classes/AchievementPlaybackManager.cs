@@ -6,13 +6,12 @@
 
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Windows.Media;
 using System.Windows.Threading;
 using log4net;
+using zxeltor.StoCombat.Lib.Helpers;
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.StoCombat.Realtime.Controls;
 
 namespace zxeltor.StoCombat.Realtime.Classes;
 
@@ -20,100 +19,65 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
 {
     #region Private Fields
 
-    private bool _isRunning;
+    private Dictionary<AchievementPlaybackEnum, AchievementMedia>? _achievementMediaDictionary;
+    private AchievementOverlayWindow? _achievementOverlayWindow;
+
+    private readonly AchievementOverlayWindowContext _achievementOverlayWindowContext;
 
     // We use this as an audio playback queue, so we process each audio file one at a time,
     // so they're not trampling on each other.
-    private BlockingCollection<AchievementType> _audioPlaybackQueue;
+    private BlockingCollection<AchievementPlaybackEnum>? _achievementRequestQueue;
 
-    private Task _audioPlaybackTask;
-    private string _audioSubFolder;
-    private CancellationTokenSource _cancellationTokenSource;
-    private readonly RealtimeCombatLogParseSettings _parseSettings;
-
+    private Task? _audioPlaybackTask;
+    private CancellationTokenSource? _cancellationTokenSource;
+    private bool _isRunning;
     private readonly ILog _log = LogManager.GetLogger(typeof(AchievementPlaybackManager));
-
-    private readonly Dictionary<AchievementType, string> _mediaFilePaths = new()
-    {
-        { AchievementType.DEAD, "pacmandies.mp3" },
-        { AchievementType.DOMINATING, "dominating.mp3" },
-        { AchievementType.DOUBLE, "doublekill.mp3" },
-        { AchievementType.FIRSTBLOOD, "firstblood.mp3" },
-        { AchievementType.GODLIKE, "godlike.mp3" },
-        { AchievementType.HOLYSHIT, "holyshit.mp3" },
-        { AchievementType.KILLSPREE, "killingspree.mp3" },
-        { AchievementType.LUDICROUS, "ludicrouskill.mp3" },
-        { AchievementType.MEGA, "megakill.mp3" },
-        { AchievementType.MONSTER, "monsterkill.mp3" },
-        { AchievementType.MULTI, "multikill.mp3" },
-        { AchievementType.PREP4BATTLE, "prepareforbattle.mp3" },
-        { AchievementType.RAMPAGE, "rampage.mp3" },
-        { AchievementType.ULTRA, "ultrakill.mp3" },
-        { AchievementType.UNSTOPPABLE, "unstoppable.mp3" },
-        { AchievementType.WICKED, "wickedsick.mp3" }
-    };
-
-    // A collection of media players with audio data already loaded and buffered.
-    // We keep this around so we don't need to reload media each time we want to
-    // play an announcement.
-    private Dictionary<AchievementType, MediaPlayer>? _mediaPlayerDictionary;
 
     // The number of consecutive kills to be considered for multi kill processing.
     private int _numberOfConsecutiveKills;
 
     // The number of consecutive kills with a death. Is reset after player death, or new combat has been detected.
     private int _numberOfPlayerKillsBeforeDeath;
+
+    //private AchievementOverlayWindow? _overlayWindow;
     private readonly Dispatcher _parentDispatcher;
+    private readonly RealtimeCombatLogParseSettings _parserSettings;
 
     // Used to determine if recent consecutive kills can be considered for multi kill processing.
     private DateTime _timeOfLastKill;
 
     // A timer used for multi kill determination.
-    private Timer _timerMultiKillAnnouncement;
+    private Timer? _timerMultiKillAnnouncement;
 
     #endregion
 
     #region Constructors
 
-    public AchievementPlaybackManager(Dispatcher parentParentDispatcher,
-        RealtimeCombatLogParseSettings parseSettings)
+    /// <summary>
+    ///     Used to manage achievement logic
+    /// </summary>
+    /// <param name="context">A context object for the achievement overlay window.</param>
+    /// <param name="parentParentDispatcher">The parent object dispatcher.</param>
+    /// <param name="parserSettings">The main parse settings.</param>
+    public AchievementPlaybackManager(Dispatcher parentParentDispatcher)
     {
+        this._achievementOverlayWindowContext = StoCombatRealtimeSettings.Instance.AchievementOverlayWindowContext;
         this._parentDispatcher = parentParentDispatcher;
-        this._parseSettings = parseSettings;
-    }
-
-    public void Start()
-    {
-        try
-        {
-            if(this.IsRunning) return;
-            this.IsRunning = true;
-
-            this.SetupMediaPlayers();
-
-            this._cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
-
-            this._timerMultiKillAnnouncement = new Timer(this.MultiKillAnnouncementTimerCallback, null, Timeout.Infinite,
-                Timeout.Infinite);
-
-            this._audioPlaybackQueue = new BlockingCollection<AchievementType>(new ConcurrentQueue<AchievementType>());
-            this._audioPlaybackTask =
-                new Task(this.ProcessAudioPlayBackRequestsAction, this._cancellationTokenSource.Token);
-            this._audioPlaybackTask.Start();
-        }
-        catch (Exception e)
-        {
-            this._log.Error($"Failed to start: {nameof(AchievementPlaybackManager)}", e);
-            this.Dispose();
-        }
+        this._parserSettings = StoCombatRealtimeSettings.Instance.ParseSettings;
     }
 
     #endregion
 
     #region Public Properties
 
+    public bool IsRunning
+    {
+        get => this._isRunning;
+        private set => this.SetField(ref this._isRunning, value);
+    }
+
     // The max number of seconds between consecutive kills for a new kill to be considered for multi kill processing.
-    private TimeSpan MultiKillWait => TimeSpan.FromSeconds(this._parseSettings.MultiKillWaitInSeconds);
+    private TimeSpan MultiKillWait => TimeSpan.FromSeconds(this._parserSettings.MultiKillWaitInSeconds);
 
     #endregion
 
@@ -128,33 +92,44 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
         {
             this.IsRunning = false;
 
-            this._parseSettings.Dispose();
-            this._timerMultiKillAnnouncement.Dispose();
+            AppCommunicationsManager.Instance.AchievementEvent -= this.InstanceOnAchievementEvent;
+            AppCommunicationsManager.Instance.PlayAchievementAudioRequest -= this.InstanceOnPlayAchievementAudioRequest;
+
+            this._timerMultiKillAnnouncement?.Dispose();
+
+            this._achievementOverlayWindow?.Close();
+            this._achievementOverlayWindow = null;
 
             /*
              * Stop the dequeuing task from taking more entries on the audio playback queue.
              */
-            this._audioPlaybackQueue?.CompleteAdding();
+            this._achievementRequestQueue?.CompleteAdding();
             this._cancellationTokenSource?.Cancel();
 
-            if (this._audioPlaybackTask.Wait(5000))
+            if (this._audioPlaybackTask != null)
             {
+                this._audioPlaybackTask.Wait(5000);
                 this._cancellationTokenSource?.Dispose();
 
                 /*
                  * Disposing of everything else.
                  */
-                this._audioPlaybackQueue?.Dispose();
+                this._achievementRequestQueue?.Dispose();
 
                 this._audioPlaybackTask?.Dispose();
-                this._audioPlaybackQueue?.Dispose();
+                this._achievementRequestQueue?.Dispose();
             }
 
-            this._mediaPlayerDictionary?.Clear();
+            this._achievementMediaDictionary?.Values.ToList().ForEach(achievementMedia =>
+            {
+                achievementMedia.MediaPlayer?.Close();
+            });
+
+            this._achievementMediaDictionary?.Clear();
         }
         catch (Exception e)
         {
-            this._log.Error($"Failed to dispose of {nameof(AchievementPlaybackManager)}");
+            this._log.Error($"Failed to dispose of {nameof(AchievementPlaybackManager)}. Reason={e.Message}", e);
         }
     }
 
@@ -163,18 +138,82 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
     /// <summary>
     ///     Add an achievement to the playback queue, so it can get in line for playback.
     /// </summary>
-    /// <param name="achievementType">The achievement audio type to play.</param>
-    public void PlayAudio(AchievementType achievementType)
+    /// <param name="achievementPlaybackEnum">The achievement audio playbackEnum to play.</param>
+    public void PlayAudio(AchievementPlaybackEnum achievementPlaybackEnum)
     {
-        if(!this.IsRunning) return;
+        if (!this.IsRunning) return;
 
         try
         {
-            this._audioPlaybackQueue.Add(achievementType);
+            this._achievementRequestQueue?.Add(achievementPlaybackEnum);
         }
         catch (Exception e)
         {
-            this._log.Error($"Failed to add achievement {achievementType} to audio playback queue.", e);
+            this._log.Error($"Failed to add achievement {achievementPlaybackEnum} to audio playback queue.", e);
+        }
+    }
+
+    public void ProcessEvent(AchievementEvent achievementEvent)
+    {
+        if (!this.IsRunning) return;
+
+        try
+        {
+            if (achievementEvent == AchievementEvent.Kill)
+            {
+                this.ProcessKill(DateTime.Now);
+            }
+            else if (achievementEvent == AchievementEvent.Death)
+            {
+                this._log.Debug($"Processed event {achievementEvent}");
+                this.ProcessDeath();
+            }
+            else
+            {
+                this._log.Debug($"Processed event {achievementEvent}");
+                this.Reset();
+            }
+        }
+        catch (Exception e)
+        {
+            this._log.Error($"Failed to process achievement event: {achievementEvent}", e);
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void Start()
+    {
+        try
+        {
+            if (this.IsRunning) return;
+            this.IsRunning = true;
+
+            this.SetupAchievementMediaDictionary();
+
+            this._achievementOverlayWindow =
+                new AchievementOverlayWindow(this._achievementOverlayWindowContext, string.Empty);
+            this._achievementOverlayWindow.ShowOverlay();
+
+            this._cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
+
+            this._timerMultiKillAnnouncement = new Timer(this.MultiKillAnnouncementTimerCallback, null,
+                Timeout.Infinite,
+                Timeout.Infinite);
+
+            this._achievementRequestQueue =
+                new BlockingCollection<AchievementPlaybackEnum>(new ConcurrentQueue<AchievementPlaybackEnum>());
+            this._audioPlaybackTask =
+                new Task(this.ProcessAchievementRequestQueue, this._cancellationTokenSource.Token);
+            this._audioPlaybackTask.Start();
+
+            AppCommunicationsManager.Instance.AchievementEvent += this.InstanceOnAchievementEvent;
+            AppCommunicationsManager.Instance.PlayAchievementAudioRequest += this.InstanceOnPlayAchievementAudioRequest;
+        }
+        catch (Exception e)
+        {
+            this._log.Error($"Failed to start: {nameof(AchievementPlaybackManager)}. Reason={e.Message}", e);
+            this.Dispose();
         }
     }
 
@@ -196,10 +235,14 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
         }
     }
 
-    public bool IsRunning
+    private void InstanceOnAchievementEvent(object? sender, AchievementEvent e)
     {
-        get => this._isRunning;
-        private set => this.SetField(ref this._isRunning, value);
+        this.ProcessEvent(e);
+    }
+
+    private void InstanceOnPlayAchievementAudioRequest(object? sender, AchievementPlaybackEnum e)
+    {
+        this.PlayAudio(e);
     }
 
     private void MultiKillAnnouncementTimerCallback(object? state)
@@ -209,7 +252,8 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
             var tmpConsecutiveKillCount = this._numberOfConsecutiveKills;
             if (tmpConsecutiveKillCount > 7) tmpConsecutiveKillCount = 7;
 
-            this._audioPlaybackQueue.Add((AchievementType)tmpConsecutiveKillCount);
+            this._log.Debug($"Processing multi-kill: x{tmpConsecutiveKillCount+1}: {(AchievementPlaybackEnum)tmpConsecutiveKillCount}");
+            this._achievementRequestQueue?.Add((AchievementPlaybackEnum)tmpConsecutiveKillCount);
             this._numberOfConsecutiveKills = 0;
         }
         catch (Exception e)
@@ -218,28 +262,64 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
         }
     }
 
-    private void ProcessAudioPlayBackRequestsAction()
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        while (this._audioPlaybackQueue is { IsAddingCompleted: false } &&
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void ProcessAchievementRequestQueue()
+    {
+        while (this._achievementRequestQueue is { IsAddingCompleted: false } && this._cancellationTokenSource != null &&
                !this._cancellationTokenSource.Token.IsCancellationRequested)
             try
             {
                 // This will block until an item is pulled from the queue.
-                var nextAchievementType = this._audioPlaybackQueue.Take(this._cancellationTokenSource.Token);
+                var nextAchievementType = this._achievementRequestQueue.Take(this._cancellationTokenSource.Token);
 
-                var delay = TimeSpan.FromSeconds(1);
-                if (this._mediaPlayerDictionary != null &&
-                    this._mediaPlayerDictionary.TryGetValue(nextAchievementType, out var mediaPlayer))
+                var delay = TimeSpan.Zero;
+                if (this._achievementMediaDictionary != null &&
+                    this._achievementMediaDictionary.TryGetValue(nextAchievementType, out var achievementMedia))
                 {
                     this._parentDispatcher.Invoke(() =>
                     {
-                        mediaPlayer.Position = TimeSpan.Zero;
-                        mediaPlayer.Volume = this._parseSettings.AnnouncementPlaybackVolumePercentage / 100d;
-                        mediaPlayer.Play();
-                        delay = mediaPlayer.NaturalDuration.TimeSpan;
+                        // Do audio playback of achievement, if it's enabled.
+                        if ((this._parserSettings.IsProcessKillingSpreeAnnouncements &&
+                             achievementMedia.TypeEnum == AchievementTypeEnum.Spree)
+                            || (this._parserSettings.IsProcessMultiKillAnnouncements &&
+                                achievementMedia.TypeEnum == AchievementTypeEnum.Multi)
+                            || (this._parserSettings.IsProcessMiscAnnouncements &&
+                                achievementMedia.TypeEnum == AchievementTypeEnum.Misc))
+                            if (achievementMedia.MediaPlayer != null)
+                            {
+                                achievementMedia.MediaPlayer.Position = TimeSpan.Zero;
+                                achievementMedia.MediaPlayer.Volume =
+                                    this._parserSettings.AnnouncementPlaybackVolumePercentage / 100d;
+                                achievementMedia.MediaPlayer.Play();
+
+                                delay = achievementMedia.MediaPlayer.NaturalDuration.HasTimeSpan
+                                    ? achievementMedia.MediaPlayer.NaturalDuration.TimeSpan
+                                    : achievementMedia.AudioDuration;
+                            }
+
+                        // Display splash screen for achievement, if it's enabled.
+                        if ((this._parserSettings.IsProcessKillingSpreeSplash &&
+                             achievementMedia.TypeEnum == AchievementTypeEnum.Spree)
+                            || (this._parserSettings.IsProcessMultiKillSplash &&
+                                achievementMedia.TypeEnum == AchievementTypeEnum.Multi)
+                            || (this._parserSettings.IsProcessMiscSplash &&
+                                achievementMedia.TypeEnum == AchievementTypeEnum.Misc))
+                        {
+                            if (this._achievementOverlayWindow != null && !this._achievementOverlayWindow.IsOpen())
+                                this._achievementOverlayWindow.ShowOverlay();
+
+                            this._achievementOverlayWindow?.SetText(achievementMedia.DisplayText);
+
+                            if (delay == TimeSpan.Zero)
+                                delay = achievementMedia.AudioDuration;
+                        }
                     });
 
-                    // Not ideal, but mediaplayer doesn't have a blocking call for playback.
+                    // Not ideal, but media player doesn't have a blocking call for playback.
                     Thread.Sleep(delay);
                 }
             }
@@ -248,107 +328,76 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
             }
             catch (InvalidOperationException e)
             {
-                this._log.Error("Failed to play audio on queue.", e);
+                this._log.Error($"Failed to process achievement on queue. Reason={e.Message}", e);
             }
             catch (Exception e)
             {
-                this._log.Error("Failed to play audio on queue.", e);
+                this._log.Error($"Failed to process achievement on queue. Reason={e.Message}", e);
+            }
+            finally
+            {
+                if (this._achievementOverlayWindow != null)
+                    this._parentDispatcher.Invoke(() => this._achievementOverlayWindow?.SetText(string.Empty));
             }
     }
 
     private void ProcessDeath()
     {
-        this._audioPlaybackQueue.Add(AchievementType.DEAD);
-        this.Reset();
-    }
-
-    public void ProcessEvent(AchievementEvent achievementEvent)
-    {
-        if (!this.IsRunning) return;
-
-        try
-        {
-            if (achievementEvent == AchievementEvent.Kill)
-                this.ProcessKill(DateTime.Now);
-            else if (achievementEvent == AchievementEvent.Death)
-                this.ProcessDeath();
-            else
-                this.Reset();
-
-            this._log.Debug($"Processed event {achievementEvent}");
-        }
-        catch (Exception e)
-        {
-            this._log.Error($"Failed to process achievement event: {achievementEvent}", e);
-        }
+        this._achievementRequestQueue?.Add(AchievementPlaybackEnum.DEAD);
     }
 
     private void ProcessKill(DateTime timeStamp)
     {
         this._numberOfPlayerKillsBeforeDeath++;
 
-        //if (this._numberOfPlayerKillsBeforeDeath == 1) this._audioPlaybackQueue.Add(AchievementType.FIRSTBLOOD);
-
-        if (this._numberOfPlayerKillsBeforeDeath >= 2 && this._parseSettings.IsProcessMultiKillAnnouncements)
+        if (this._numberOfPlayerKillsBeforeDeath >= 2 && this._parserSettings.IsProcessMultiKillAnnouncements)
             this.DetermineIfMultiKill(timeStamp);
         this._timeOfLastKill = timeStamp;
 
-        if (this._numberOfPlayerKillsBeforeDeath % 5 == 0 &&
-            this._parseSettings.IsProcessKillingSpreeAnnouncements) this.ProcessKillingSpree();
+        if ((this._numberOfPlayerKillsBeforeDeath <= 30 && this._numberOfPlayerKillsBeforeDeath % 5 == 0)
+            || (this._numberOfPlayerKillsBeforeDeath > 30 && this._numberOfPlayerKillsBeforeDeath % 10 == 0)
+            || (this._numberOfPlayerKillsBeforeDeath > 50 && this._numberOfPlayerKillsBeforeDeath % 20 == 0
+                                                          && this._parserSettings.IsProcessKillingSpreeAnnouncements))
+            this.ProcessKillingSpree();
     }
 
     private void ProcessKillingSpree()
     {
-        if (this._numberOfPlayerKillsBeforeDeath >= 30) this._audioPlaybackQueue.Add(AchievementType.WICKED);
-        else if (this._numberOfPlayerKillsBeforeDeath == 25) this._audioPlaybackQueue.Add(AchievementType.GODLIKE);
-        else if (this._numberOfPlayerKillsBeforeDeath == 20) this._audioPlaybackQueue.Add(AchievementType.UNSTOPPABLE);
-        else if (this._numberOfPlayerKillsBeforeDeath == 15) this._audioPlaybackQueue.Add(AchievementType.DOMINATING);
-        else if (this._numberOfPlayerKillsBeforeDeath == 10) this._audioPlaybackQueue.Add(AchievementType.RAMPAGE);
-        else if (this._numberOfPlayerKillsBeforeDeath == 5) this._audioPlaybackQueue.Add(AchievementType.KILLSPREE);
+        if (this._numberOfPlayerKillsBeforeDeath >= 30)
+        {
+            this._log.Debug($"Processing spree {this._numberOfPlayerKillsBeforeDeath}: {AchievementPlaybackEnum.WICKED}");
+            this._achievementRequestQueue?.Add(AchievementPlaybackEnum.WICKED);
+        }
+        else if (this._numberOfPlayerKillsBeforeDeath == 25)
+        {
+            this._log.Debug($"Processing spree {this._numberOfPlayerKillsBeforeDeath}: {AchievementPlaybackEnum.GODLIKE}");
+            this._achievementRequestQueue?.Add(AchievementPlaybackEnum.GODLIKE);
+        }
+        else if (this._numberOfPlayerKillsBeforeDeath == 20)
+        {
+            this._log.Debug($"Processing spree {this._numberOfPlayerKillsBeforeDeath}: {AchievementPlaybackEnum.UNSTOPPABLE}");
+            this._achievementRequestQueue?.Add(AchievementPlaybackEnum.UNSTOPPABLE);
+        }
+        else if (this._numberOfPlayerKillsBeforeDeath == 15)
+        {
+            this._log.Debug($"Processing spree {this._numberOfPlayerKillsBeforeDeath}: {AchievementPlaybackEnum.DOMINATING}");
+            this._achievementRequestQueue?.Add(AchievementPlaybackEnum.DOMINATING);
+        }
+        else if (this._numberOfPlayerKillsBeforeDeath == 10)
+        {
+            this._log.Debug($"Processing spree {this._numberOfPlayerKillsBeforeDeath}: {AchievementPlaybackEnum.RAMPAGE}");
+            this._achievementRequestQueue?.Add(AchievementPlaybackEnum.RAMPAGE);
+        }
+        else if (this._numberOfPlayerKillsBeforeDeath == 5)
+        {
+            this._log.Debug($"Processing spree {this._numberOfPlayerKillsBeforeDeath}: {AchievementPlaybackEnum.KILLSPREE}");
+            this._achievementRequestQueue?.Add(AchievementPlaybackEnum.KILLSPREE);
+        }
     }
 
     private void Reset()
     {
         this._numberOfPlayerKillsBeforeDeath = 0;
-    }
-
-    private void SetupMediaPlayers()
-    {
-        var entryAssembly = Assembly.GetEntryAssembly();
-        if (entryAssembly != null)
-            this._audioSubFolder =
-                Path.Combine(Path.GetDirectoryName(entryAssembly.Location) ?? Environment.CurrentDirectory,
-                    "AudioFiles");
-        else
-            this._audioSubFolder = Path.Combine(Environment.CurrentDirectory, "AudioFiles");
-
-        this._mediaPlayerDictionary = new Dictionary<AchievementType, MediaPlayer>();
-
-        this._mediaFilePaths.ToList().ForEach(keyval =>
-        {
-            var mediaPlayer = new MediaPlayer();
-            mediaPlayer.Open(new Uri(Path.Combine(this._audioSubFolder, keyval.Value)));
-            this._mediaPlayerDictionary.Add(keyval.Key, mediaPlayer);
-        });
-    }
-
-    private void StartMultiKillAnnouncementTimer()
-    {
-        this._timerMultiKillAnnouncement.Change(this.MultiKillWait, Timeout.InfiniteTimeSpan);
-    }
-
-    private void StopMultiKillAnnouncementTimer()
-    {
-        this._timerMultiKillAnnouncement.Change(Timeout.Infinite, Timeout.Infinite);
-    }
-
-    #endregion
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
@@ -358,4 +407,109 @@ public class AchievementPlaybackManager : INotifyPropertyChanged, IDisposable
         this.OnPropertyChanged(propertyName);
         return true;
     }
+
+    private void SetupAchievementMediaDictionary()
+    {
+        this._achievementMediaDictionary = new Dictionary<AchievementPlaybackEnum, AchievementMedia>
+        {
+            {
+                AchievementPlaybackEnum.DEAD,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Misc,
+                    AchievementPlaybackEnum.DEAD, "pacmandies.mp3", TimeSpan.FromSeconds(1.75), "YOU'VE BEEN POWNED!")
+            },
+            {
+                AchievementPlaybackEnum.DOMINATING,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.DOMINATING, "dominating.mp3", TimeSpan.FromSeconds(1))
+            },
+            {
+                AchievementPlaybackEnum.DOUBLE,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.DOUBLE, "doublekill.mp3", TimeSpan.FromSeconds(1),
+                    $"{AchievementPlaybackEnum.DOUBLE} KILL")
+            },
+            {
+                AchievementPlaybackEnum.TRIPPLE,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.TRIPPLE, "triplekill.mp3", TimeSpan.FromSeconds(1),
+                    $"{AchievementPlaybackEnum.TRIPPLE} KILL")
+            },
+            {
+                AchievementPlaybackEnum.GODLIKE,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.GODLIKE, "godlike.mp3", TimeSpan.FromSeconds(1),
+                    "GOD LIKE")
+            },
+            {
+                AchievementPlaybackEnum.HOLYSHIT,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.HOLYSHIT, "holyshit.mp3", TimeSpan.FromSeconds(3),
+                    "HOLY SHIT!")
+            },
+            {
+                AchievementPlaybackEnum.KILLSPREE,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.KILLSPREE, "killingspree.mp3", TimeSpan.FromSeconds(2),
+                    "KILLING SPREE")
+            },
+            {
+                AchievementPlaybackEnum.LUDICROUS,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.LUDICROUS, "ludicrouskill.mp3", TimeSpan.FromSeconds(4),
+                    $"{AchievementPlaybackEnum.LUDICROUS} KILL")
+            },
+            {
+                AchievementPlaybackEnum.MEGA,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.MEGA, "megakill.mp3", TimeSpan.FromSeconds(2),
+                    $"{AchievementPlaybackEnum.MEGA} KILL")
+            },
+            {
+                AchievementPlaybackEnum.MONSTER,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.MONSTER, "monsterkill.mp3", TimeSpan.FromSeconds(4),
+                    $"{AchievementPlaybackEnum.MONSTER} KILL")
+            },
+            {
+                AchievementPlaybackEnum.MULTI,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.MULTI, "multikill.mp3", TimeSpan.FromSeconds(2),
+                    $"{AchievementPlaybackEnum.MULTI} KILL")
+            },
+            {
+                AchievementPlaybackEnum.RAMPAGE,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.RAMPAGE, "rampage.mp3", TimeSpan.FromSeconds(1))
+            },
+            {
+                AchievementPlaybackEnum.ULTRA,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Multi,
+                    AchievementPlaybackEnum.ULTRA, "ultrakill.mp3", TimeSpan.FromSeconds(2),
+                    $"{AchievementPlaybackEnum.ULTRA} KILL")
+            },
+            {
+                AchievementPlaybackEnum.UNSTOPPABLE,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.UNSTOPPABLE, "unstoppable.mp3", TimeSpan.FromSeconds(2))
+            },
+            {
+                AchievementPlaybackEnum.WICKED,
+                new AchievementMedia(this._achievementOverlayWindowContext, AchievementTypeEnum.Spree,
+                    AchievementPlaybackEnum.WICKED, "wickedsick.mp3", TimeSpan.FromSeconds(2),
+                    "WICKED SICK")
+            }
+        };
+    }
+
+    private void StartMultiKillAnnouncementTimer()
+    {
+        this._timerMultiKillAnnouncement?.Change(this.MultiKillWait, Timeout.InfiniteTimeSpan);
+    }
+
+    private void StopMultiKillAnnouncementTimer()
+    {
+        this._timerMultiKillAnnouncement?.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+
+    #endregion
 }

@@ -1,10 +1,15 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:converters="clr-namespace:zxeltor.StoCombat.Realtime.Converters">
+    <converters:CombatTimeSpanToShortStringConverter x:Key="combatTimeSpanToShortStringConverter"></converters:CombatTimeSpanToShortStringConverter>
+    <converters:ResultLevelImageSourceConverter x:Key="resultLevelImageSourceConverter"></converters:ResultLevelImageSourceConverter>
+    <converters:SolidColorBrushToBrushConverter x:Key="solidColorBrushToBrushConverter"></converters:SolidColorBrushToBrushConverter>
+    <converters:SolidColorBrushToColorConverter x:Key="solidColorBrushToColorConverter"></converters:SolidColorBrushToColorConverter>
     <converters:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
     <converters:DateTimeToHoursminutesSecondsMilliSecondsConverter x:Key="dateTimeToHoursMinutesSecondsMilliSecondsConverter" />
     <converters:BoolToGridLengthConverter x:Key="boolToGridLengthConverter" />
     <converters:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+    <converters:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
     <converters:RejectedToVisibilityConverter x:Key="rejectedTypeToVisibilityConverter" />
     <converters:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
     <converters:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
@@ -18,11 +23,21 @@
     <Brush x:Key="colorImported">DarkOrange</Brush>
     <Brush x:Key="colorRejected">Red</Brush>
     <Brush x:Key="colorRejectedReason">DarkRed</Brush>
+    <SolidColorBrush x:Key="colorOverlayBackground" Opacity="0.40" Color="Black"></SolidColorBrush>
     <FontFamily x:Key="fontNoKern">Consolas</FontFamily>
     <Style TargetType="Border" x:Key="combatTypeLabelStyle">
         <Setter Property="BorderBrush" Value="Black"></Setter>
         <Setter Property="BorderThickness" Value="1"></Setter>
         <Setter Property="CornerRadius" Value="4"></Setter>
         <Setter Property="Margin" Value="0,0,2,2"></Setter>
+    </Style>
+    <DropShadowEffect x:Key="dropShadowEffectRed" ShadowDepth="2" Direction="315" Color="Black" Opacity="1" BlurRadius="3"></DropShadowEffect>
+    <DropShadowEffect x:Key="dropShadowEffectGreen" ShadowDepth="4" Direction="315" Color="Green" Opacity="0.5" BlurRadius="4"></DropShadowEffect>
+    <Style TargetType="TextBlock" x:Key="metricGridTextBox">
+        <Style.Setters>
+            <Setter Property="FontSize" Value="15"></Setter>
+            <Setter Property="IsHitTestVisible" Value="False"></Setter>
+            <Setter Property="Margin" Value="2,0,2,0"></Setter>
+        </Style.Setters>
     </Style>
 </ResourceDictionary>

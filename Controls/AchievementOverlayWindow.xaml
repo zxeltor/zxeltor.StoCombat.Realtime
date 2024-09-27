@@ -1,0 +1,36 @@
+﻿<Window x:Class="zxeltor.StoCombat.Realtime.Controls.AchievementOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:classes="clr-namespace:zxeltor.StoCombat.Realtime.Classes"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type classes:AchievementOverlayWindowContext}}"
+        Title="AchievementOverlayWindow" Topmost="True" ShowInTaskbar="False"
+        d:Background="Transparent" Top="{Binding Path=OverlayWindowTop, Mode=TwoWay}" Left="{Binding Path=OverlayWindowLeft, Mode=TwoWay}" 
+        BorderThickness="0" Height="150" Width="500" Background="Transparent">
+    <Window.Resources>
+        <ResourceDictionary Source="/Styles/StoCombatResourceDictionary.xaml"></ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <TextBlock Name="uiTextBlockAchievementMessage" Text="Monster KILL"
+                   Grid.Row="0" Grid.Column="0" Margin="0,0,0,0" Padding="2,2,2,2"
+                   Foreground="{Binding Path=TextColorBrush}" FontWeight="Bold" FontSize="36" 
+                   VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock.Effect>
+                <DropShadowEffect
+                    ShadowDepth="4"
+                    Direction="330"
+                    Color="{Binding Path=DropShadowColorBrush, Converter={StaticResource solidColorBrushToColorConverter}}"
+                    Opacity="0.5"
+                    BlurRadius="4"/>
+            </TextBlock.Effect>
+        </TextBlock>
+    </Grid>
+</Window>

@@ -3,32 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:zxeltor.StoCombat.Realtime"
+             xmlns:properties="clr-namespace:zxeltor.StoCombat.Realtime.Properties"
+             xmlns:classes="clr-namespace:zxeltor.StoCombat.Realtime.Classes"
              xmlns:converters="clr-namespace:zxeltor.StoCombat.Realtime.Converters"
-             xmlns:parser="clr-namespace:zxeltor.StoCombat.Lib.Parser;assembly=zxeltor.StoCombat.Lib"
+             xmlns:controls="clr-namespace:zxeltor.StoCombat.Realtime.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="900" d:DesignWidth="800" d:Background="Azure"
-             d:DataContext="{d:DesignInstance Type={x:Type parser:RealtimeCombatLogParseSettings}}">
+             d:DesignHeight="1500" d:DesignWidth="800" d:Background="Azure"
+             d:DataContext="{d:DesignInstance Type={x:Type classes:StoCombatRealtimeSettings}}">
     <UserControl.Resources>
         <converters:IntToStringValidationConverter x:Key="intToStringValidationConverter" />
+        <converters:SolidColorBrushToBrushConverter x:Key="solidColorBrushToBrushConverter"></converters:SolidColorBrushToBrushConverter>
+        <converters:SolidColorBrushToColorOpacityConverter x:Key="solidColorBrushToColorOpacity"></converters:SolidColorBrushToColorOpacityConverter>
         <Brush x:Key="colorSettingsDescription">Black</Brush>
         <Brush x:Key="colorSettingsNote">IndianRed</Brush>
+        <Style TargetType="TextBlock" x:Key="styleSettingsGroupBoxHeader">
+            <Setter Property="Foreground" Value="Blue"></Setter>
+            <Setter Property="FontWeight" Value="Bold"></Setter>
+        </Style>
+        <Style TargetType="GroupBox" x:Key="styleSettingsGroupBoxBorder">
+            <Setter Property="BorderBrush" Value="Blue"></Setter>
+            <Setter Property="BorderThickness" Value="2"></Setter>
+            <Setter Property="Margin" Value="2,2,2,2"></Setter>
+            <Setter Property="Padding" Value="4,4,4,4"></Setter>
+        </Style>
         <Style TargetType="Border" x:Key="styleSettingsBorder">
             <Setter Property="BorderBrush" Value="DarkSlateBlue"></Setter>
             <Setter Property="BorderThickness" Value="2"></Setter>
             <Setter Property="Margin" Value="2,2,2,2"></Setter>
             <Setter Property="Padding" Value="4,4,4,4"></Setter>
-        </Style>
-        <Style TargetType="Border" x:Key="styleSettingsBorderEmpty">
-            <Setter Property="BorderThickness" Value="0"></Setter>
-            <Setter Property="Margin" Value="0,0,0,0"></Setter>
-            <Setter Property="Padding" Value="0,0,0,0"></Setter>
-        </Style>
-        <Style TargetType="Border" x:Key="styleSettingsInnerBorder">
-            <Setter Property="BorderBrush" Value="DarkSlateBlue"></Setter>
-            <Setter Property="BorderThickness" Value="2"></Setter>
-            <Setter Property="Margin" Value="1,1,1,1"></Setter>
-            <Setter Property="Padding" Value="2,2,2,2"></Setter>
         </Style>
         <Style TargetType="ScrollViewer" x:Key="styleSettingsScrollViewer">
             <Setter Property="Margin" Value="0,0,0,0"></Setter>
@@ -37,7 +39,7 @@
             <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"></Setter>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <Grid DataContext="{x:Static classes:StoCombatRealtimeSettings.Instance}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -48,20 +50,39 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <GroupBox Header="General Settings" Grid.Row="0">
+                <GroupBox Grid.Row="0" Style="{StaticResource styleSettingsGroupBoxBorder}">
+                    <GroupBox.Header>
+                       <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="General Settings" Style="{StaticResource styleSettingsGroupBoxHeader}" />
+                        </StackPanel>
+                    </GroupBox.Header>
                     <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Vertical">
+                                    <TextBlock Text="STO Application Name:" FontWeight="Bold"/>
+                                    <TextBox Text="{Binding Path=StoAppName, Mode=TwoWay}" MinWidth="200" />
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    If STO is currently running, you can verify this in Windows Task Manager.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <TextBlock Text="HowOftenParseLogs:" FontWeight="Bold"/>
-                                    <TextBox Text="{Binding Path=HowOftenParseLogsInSeconds, Mode=TwoWay, 
+                                    <TextBlock Text="How Often Parse Logs:" FontWeight="Bold"/>
+                                    <TextBox Text="{Binding Path=ParseSettings.HowOftenParseLogsInSeconds, Mode=TwoWay, 
                                             Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
                                         Margin="4,0,0,0" MinWidth="60" />
                                     <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    How often in seconds to check the STO combat log(s).
+                                    How often in seconds to check the STO combat log(s) for updates. The parser will only open a file if 
+                                    it's last write time was updated since it was last parsed.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -69,8 +90,8 @@
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Vertical">
                                     <WrapPanel Orientation="Horizontal">
-                                        <TextBlock Text="CombatLogPath:" FontWeight="Bold"/>
-                                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Path=CombatLogPath, Mode=TwoWay}" Margin="4,0,0,0" MinWidth="100" HorizontalAlignment="Stretch" />
+                                        <TextBlock Text="CombatLog Folder:" FontWeight="Bold"/>
+                                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Path=ParseSettings.CombatLogPath, Mode=TwoWay}" Margin="4,0,0,0" MinWidth="100" HorizontalAlignment="Stretch" />
                                         <Button Name="uiButtonBoxCombatLogPathSelect" Content="Browse" Click="UiButtonBoxCombatLogPath_OnClick" Margin="10,0,0,0" />
                                         <Button Name="uiButtonBoxCombatLogPathDetect" Content="Detect" Click="UiButtonBoxCombatLogPathDetect_OnClick" Margin="10,0,0,0" />
                                     </WrapPanel>
@@ -83,70 +104,268 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <TextBlock Text="CombatLogPathFilePattern:" FontWeight="Bold"/>
+                                    <TextBlock Text="CombatLog Filename:" FontWeight="Bold"/>
                                     <TextBox Name="uiTextBoxCombatLogPathFilePattern" Margin="4,0,0,0" 
-                Text="{Binding Path=CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
+                Text="{Binding Path=ParseSettings.CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-            A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.
+                                    A file pattern used to select one or more combat log files from the log folder. If a wildcard is used to 
+                                    return multiple files, the parser will pick the file most recently updated.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <TextBlock Text="MyCharacter:" FontWeight="Bold"/>
-                                    <TextBox Margin="4,0,0,0" Text="{Binding Path=MyCharacter, Mode=TwoWay}" MinWidth="200"/>
+                                    <TextBlock Text="My Character:" FontWeight="Bold"/>
+                                    <TextBox Margin="4,0,0,0" Text="{Binding Path=ParseSettings.MyCharacter, Mode=TwoWay}" MinWidth="200"/>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-            A setting used to identify a single player, or an account. No value disables this feature.
+                                    A setting used to identify your player or account. This value is required for the achievement system to work properly.
                                 </TextBlock>
                                 <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Foreground="{StaticResource colorSettingsNote}">
-            <Bold>Note:</Bold> A player has a unique id in the STO combat log. i.e. "P[13691026@4455101 Horak@zxeltor]". The player name in this case is "Horak", 
-            and the player belongs to the "@zxeltor" account. If you use the account value in this field, all the players under the account will be detected
-            and used during parsing.
+                                    <Bold>Note:</Bold> A player has a unique id in the STO combat log. i.e. "P[13691026@4455101 Horak@zxeltor]". The player name in this case is "Horak", 
+                                    and the player belongs to the "@zxeltor" account. If you use the account value in this field, all the players under the account will be detected
+                                    and used during parsing.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
+
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox Content="Inactive Time Adjustments" FontWeight="Bold"
+                                          IsChecked="{Binding Path=ParseSettings.IsEnableInactiveTimeCalculations, Mode=TwoWay}" />
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    If enabled, the application will attempt to detect Inactive time(s) for a player. 
+                                    InActive means the player took no actions for a span of time. 
+                                    Inactive time(s) are used to adjust DPS and HPS values.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <TextBlock Text="HowLongBeforeNewCombat:" FontWeight="Bold"/>
+                                    <TextBlock Text="Min Delay Before Inactive:" FontWeight="Bold" />
+                                    <TextBox Width="60" Margin="4,0,0,0"
+                                             Text="{Binding Path=ParseSettings.MinInActiveInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}"/>
+                                    <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    A Player needs to be inactive for so many seconds, before a span of time can be marked as Inactive.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Player Out of Combat:" FontWeight="Bold"/>
                                     <TextBox Name="uiTextBoxHowLongBeforeNewCombat" 
-                                         Text="{Binding Path=HowLongBeforeNewCombatInSeconds, Mode=TwoWay, 
+                                         Text="{Binding Path=ParseSettings.HowLongBeforeNewCombatInSeconds, Mode=TwoWay, 
                                             Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
                                          Margin="4,0,0,0" MinWidth="60" />
                                     <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    How long to wait in seconds since last attack, before player is marked inactive. Minimum value is 1, but it's not a good idea to set it this low.
+                                    How long to wait in seconds since last attack, before player is marked inactive and out of combat. Minimum value is 1, but it's not a good idea to set it this low.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
-                        
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <CheckBox x:Name="uiCheckBoxEnableDebugLogging" Content="Debug Logging" FontWeight="Bold"
-                                          IsChecked="{Binding Path=IsDebugLoggingEnabled, Mode=TwoWay}" />
-                                    <Button x:Name="uiButtonOpenLogFile" Content="Open Log File" Margin="4,0,0,0" Padding="4,0,4,0"
-                                        Click="ButtonBase_OnClick" />
+                                    <TextBlock Text="Player Removal From Grid" FontWeight="Bold"/>
+                                    <TextBox Text="{Binding Path=ParseSettings.HowLongAfterNoCombatBeforeRemoveFromGridInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                             Margin="4,0,0,0" MinWidth="60" />
+                                    <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                Enable debug logging for this application. This adjusts what the application logs to file, and is primary for troubleshooting purposes.
+                                    How long to wait in seconds since a player was marked Out of Combat, before removing them from the grid.
+                                    If set to 0, the player will be removed immediately after being marked Out of Combat.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <CheckBox Content="Debug Logging" FontWeight="Bold"
+                                              IsChecked="{Binding Path=IsEnableDebugLogging, Mode=TwoWay}" />
+                                    <Button Margin="16,0,0,0" Height="16" Width="16" ToolTip="Open the log file." Click="UiButtonOpenLogFile_OnClick">
+                                        <Image Source="../Images/glyphicons-152-new-window.png"></Image>
+                                    </Button>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    Enable debug logging for this application. This adjusts what the application logs to file, and is primarily for troubleshooting purposes.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="Unreal Announcement Settings" Grid.Row="1">
+
+                <GroupBox Grid.Row="1"  Style="{StaticResource styleSettingsGroupBoxBorder}"
+                          DataContext="{Binding Path=MetricsOverlayWindowContext}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Grid Overlay Settings" Style="{StaticResource styleSettingsGroupBoxHeader}" VerticalAlignment="Center" />
+                            <Button Height="14" VerticalAlignment="Center" ToolTip="Set Overlay Position"
+                                    Margin="4,0,0,0" Click="UiButtonToggleOverlayMode_OnClick">
+                                <Image Source="../Images/glyphicons-87-display.png"></Image>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" CanVerticallyScroll="True" Margin="0,4,0,0">
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Cell Text (In Combat):" FontWeight="Bold"/>
+                                    <Button Height="14" Width="14" 
+                                            Background="{Binding Path=TextColorBrush, Mode=TwoWay, Converter={StaticResource solidColorBrushToBrushConverter}}" 
+                                            Click="ColorButtonBase_OnClick" Margin="4,0,0,0"></Button>
+                                    <TextBlock Text="Opacity:" Margin="8,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=TextColorBrush, Converter={StaticResource solidColorBrushToColorOpacity}}" Margin="1,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    The color of the grid text when a player is in combat.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Cell Text (Not in Combat):" FontWeight="Bold"/>
+                                    <Button Height="14" Width="14" 
+                                            Background="{Binding Path=OutOfCombatTextColorBrush, Mode=TwoWay, Converter={StaticResource solidColorBrushToBrushConverter}}" 
+                                            Click="ColorButtonBase_OnClick" Margin="4,0,0,0"></Button>
+                                    <TextBlock Text="Opacity:" Margin="8,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=OutOfCombatTextColorBrush, Converter={StaticResource solidColorBrushToColorOpacity}}" Margin="1,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                    The color of the grid text when a player is NOT in combat.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Column Header Text:" FontWeight="Bold"/>
+                                    <Button Height="14" Width="14" 
+                                            Background="{Binding Path=HeaderTextColorBrush, Mode=TwoWay, Converter={StaticResource solidColorBrushToBrushConverter}}" 
+                                            Click="ColorButtonBase_OnClick" Margin="4,0,0,0"></Button>
+                                    <TextBlock Text="Opacity:" Margin="8,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=HeaderTextColorBrush, Converter={StaticResource solidColorBrushToColorOpacity}}" Margin="1,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    The color of the grid header text.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Background:" FontWeight="Bold"/>
+                                    <Button Height="14" Width="14" 
+                                            Background="{Binding Path=BackgroundColorBrush, Mode=TwoWay, Converter={StaticResource solidColorBrushToBrushConverter}}" 
+                                            Click="ColorButtonBase_OnClick" Margin="4,0,0,0"></Button>
+                                    <TextBlock Text="Opacity:" Margin="8,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=BackgroundColorBrush, Converter={StaticResource solidColorBrushToColorOpacity}}" Margin="1,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    The grid background color.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <!--<Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox Content="Display Events Count" FontWeight="Bold"
+                                          IsChecked="{Binding Path=DisplayEventsCount, Mode=TwoWay}"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    Display an events count above the grid.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>-->
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Columns To Display:" FontWeight="Bold"/>
+                                <WrapPanel Orientation="Horizontal">
+                                    <CheckBox Content="Damage" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayDamage, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="MaxDamage" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayMaxDamage, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="DPS" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayDps, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="Attacks" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayAttacks, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="Kills" Margin="0,0,4,0" 
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayKills, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="Start" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayStart, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="End" Margin="0,0,4,0" 
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayEnd, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="Duration" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayDuration, Mode=TwoWay}"></CheckBox>
+                                    <CheckBox Content="InActive" Margin="0,0,4,0"
+                                        IsChecked="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, 
+                                        Path=Instance.MetricsOverlayWindowContext.DisplayInActive, Mode=TwoWay}"></CheckBox>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    The columns to display in the overlay grid.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Grid.Row="2"  Style="{StaticResource styleSettingsGroupBoxBorder}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Achievement Settings" Style="{StaticResource styleSettingsGroupBoxHeader}" />
+                        </StackPanel>
+                    </GroupBox.Header>
                     <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
-                                <CheckBox Content="Enable Audio Announcements" FontWeight="Bold"
-                                      IsChecked="{Binding Path=IsUnrealAnnouncementsEnabled, Mode=TwoWay}" />
+                                <CheckBox Content="Enable" FontWeight="Bold" VerticalAlignment="Center"
+                                    IsChecked="{Binding Path=ParseSettings.IsUnrealAnnouncementsEnabled, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    Play Tournament style audio achievements. <Bold>MyCharacter</Bold> needs to be set properly for this to work.
+                                    Enable tournament style killing spree and multi-kill achievements. Play audio and/or display flashing text on the screen. 
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsNote}">
+                                    <Bold>Note: MyCharacter</Bold> needs to be set properly for this to work.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Test" FontWeight="Bold" VerticalAlignment="Center"/>
+
+                                    <Button Name="uiButtonPlayKillingSpreeAudio" Content="Test Spree"
+                                            Margin="16,0,0,0" VerticalAlignment="Center" Padding="2,0,2,0" 
+                                            Click="UiButtonPlayKillingSpreeAudio_OnClick"  ToolTip="Test Killing Spree">
+                                    </Button>
+
+                                    <Button Name="uiButtonPlayMultiKillAudio" Content="Test Multi Kill"
+                                            Margin="16,0,0,0" VerticalAlignment="Center"
+                                            Click="UiButtonPlayMultiKillAudio_OnClick"  ToolTip="Test Multi Kill" Padding="2,0,2,0">
+                                    </Button>
+
+                                    <Button Name="uiButtonPlayDeadAudio" Content="Test Misc"
+                                            Margin="16,0,0,0" VerticalAlignment="Center" 
+                                            ToolTip="Test Death Message" Click="UiButtonPlayDeadAudio_OnClick" Padding="2,0,2,0">
+                                    </Button>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    These buttons provide you with an opportunity to test achievement audio playback, and text display after making configuration changes.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -155,31 +374,43 @@
                                 <TextBlock Text="Announcement Playback Volume:" FontWeight="Bold"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Slider Margin="4,0,0,0" Orientation="Horizontal" Minimum="0" Maximum="100" 
-                                            Value="{Binding Path=AnnouncementPlaybackVolumePercentage, Mode=TwoWay}"
+                                            Value="{Binding Path=ParseSettings.AnnouncementPlaybackVolumePercentage, Mode=TwoWay}"
                                             MinWidth="100"></Slider>
-                                    <TextBlock Text="{Binding Path=AnnouncementPlaybackVolumePercentage}" Margin="4,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=ParseSettings.AnnouncementPlaybackVolumePercentage}" Margin="4,0,0,0"></TextBlock>
                                     <TextBlock Text="%" Margin="4,0,0,0"></TextBlock>
                                 </StackPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    Play Tournament style audio achievements. <Bold>MyCharacter</Bold> needs to be set properly for this to work.
+                                    Set the volume for the audio playback. This is a percentage of the current system volume.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
-                                <CheckBox Content="Enable Killing Spree" FontWeight="Bold"
-                                          IsChecked="{Binding Path=IsProcessKillingSpreeAnnouncements, Mode=TwoWay}" />
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Killing Sprees" FontWeight="Bold"></TextBlock>
+                                    <CheckBox Content="Play Audio" FontWeight="Bold" Margin="16,0,0,0"
+                                              IsChecked="{Binding Path=ParseSettings.IsProcessKillingSpreeAnnouncements, Mode=TwoWay}" />
+                                    <CheckBox Content="Display Text" FontWeight="Bold" Margin="8,0,0,0"
+                                              IsChecked="{Binding Path=ParseSettings.IsProcessKillingSpreeSplash, Mode=TwoWay}" />
+                                </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    Include killing spree audio achievements.
+                                    Include killing spree audio achievements and/or display flashing text.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
-                                <CheckBox Content="Enable Multi Kill" FontWeight="Bold"
-                                          IsChecked="{Binding Path=IsProcessMultiKillAnnouncements, Mode=TwoWay}" />
+
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Multi Kills" FontWeight="Bold"></TextBlock>
+                                    <CheckBox Content="Play Audio" FontWeight="Bold" Margin="16,0,0,0"
+                                              IsChecked="{Binding Path=ParseSettings.IsProcessMultiKillAnnouncements, Mode=TwoWay}" />
+                                    <CheckBox Content="Display Text" FontWeight="Bold" Margin="8,0,0,0"
+                                              IsChecked="{Binding Path=ParseSettings.IsProcessMultiKillSplash, Mode=TwoWay}" />
+                                </WrapPanel>
+
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    Include Multi Kill audio achievements.
+                                    Include Multi Kill audio achievements and/or display flashing text.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -187,13 +418,79 @@
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Text="MultiKillWait:" FontWeight="Bold"/>
-                                    <TextBox Text="{Binding Path=MultiKillWaitInSeconds, Mode=TwoWay, 
-                Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
+                                    <TextBox Text="{Binding Path=ParseSettings.MultiKillWaitInSeconds, Mode=TwoWay, 
+                                        Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
                                              Margin="4,0,0,0" MinWidth="60" />
                                     <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                    How long to wait in seconds between consecutive kills, before assigning a multi-kill rank.
+                                    How long to wait in seconds between consecutive kills, before assigning a final multi-kill rank.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Misc Achievements" FontWeight="Bold"></TextBlock>
+                                    <CheckBox Content="Play Audio" FontWeight="Bold" Margin="16,0,0,0"
+                                              IsChecked="{Binding Path=ParseSettings.IsProcessMiscAnnouncements, Mode=TwoWay}" />
+                                    <CheckBox Content="Display Text" FontWeight="Bold" Margin="8,0,0,0"
+                                              IsChecked="{Binding Path=ParseSettings.IsProcessMiscSplash, Mode=TwoWay}" />
+                                </WrapPanel>
+
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    Include Misc Kill audio achievements and/or display flashing text.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox Content="Include Assisted Kills" FontWeight="Bold" Margin="0,0,0,0"
+                                          IsChecked="{Binding Path=ParseSettings.IsIncludeAssistedKillsInAchievements, Mode=TwoWay}" />
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    Include assisted kills in achievements processing.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Grid.Row="3"  Style="{StaticResource styleSettingsGroupBoxBorder}"
+                    DataContext="{Binding Path=AchievementOverlayWindowContext}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Achievement Overlay Settings" Style="{StaticResource styleSettingsGroupBoxHeader}" />
+                            <Button Height="14" VerticalAlignment="Center" ToolTip="Set Overlay Position"
+                                    Margin="4,0,0,0" Click="UiButtonToggleAchievementOverlayMode_OnClick">
+                                <Image Source="../Images/glyphicons-87-display.png"></Image>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
+                        <!--<Button Content="Test and Move Location" HorizontalAlignment="Right" Margin="0,0,2,2" Click="UiButtonToggleAchievementOverlayMode_OnClick"></Button>-->
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Text:" FontWeight="Bold"/>
+                                    <Button Height="14" Width="14" Background="{Binding Path=TextColorBrush, Mode=TwoWay, Converter={StaticResource solidColorBrushToBrushConverter}}" Click="ColorButtonBase_OnClick" Margin="4,0,0,0"></Button>
+                                    <TextBlock Text="Opacity:" Margin="8,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=TextColorBrush, Converter={StaticResource solidColorBrushToColorOpacity}}" Margin="1,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    The color of the flash text.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource styleSettingsBorder}">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Drop Shadow" FontWeight="Bold"/>
+                                    <Button Height="14" Width="14" Background="{Binding Path=DropShadowColorBrush, Mode=TwoWay, Converter={StaticResource solidColorBrushToBrushConverter}}" Click="ColorButtonBase_OnClick" Margin="4,0,0,0"></Button>
+                                    <TextBlock Text="Opacity:" Margin="8,0,0,0"></TextBlock>
+                                    <TextBlock Text="{Binding Path=DropShadowColorBrush, Converter={StaticResource solidColorBrushToColorOpacity}}" Margin="1,0,0,0"></TextBlock>
+                                </WrapPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                    The color of the flash text drop shadow.
                                 </TextBlock>
                             </StackPanel>
                         </Border>

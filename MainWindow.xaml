@@ -8,7 +8,7 @@
         xmlns:classes="clr-namespace:zxeltor.StoCombat.Realtime.Classes"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type classes:RealtimeCombatLogMonitor}}"
-        Title="MainWindow" Height="300" Width="440">
+        Title="MainWindow" MinHeight="300" MinWidth="440" Height="700" Width="700" d:DesignHeight="600" Name="uiMainWindow">
     <Window.Resources>
         <ResourceDictionary Source="Styles/StoCombatResourceDictionary.xaml"></ResourceDictionary>
     </Window.Resources>
@@ -17,6 +17,7 @@
             <TabItem Header="Monitor">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
@@ -35,106 +36,69 @@
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
+                            
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6">
                                 <TextBlock Text="Running:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
                                 <TextBlock Text="{Binding Path=IsRunning}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                             </StackPanel>
                             
                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6">
-                                <TextBlock Text="File:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                <TextBlock Text="{Binding Path=LatestFileName}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                <TextBlock Text="Latest File:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=LatestFileName}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"
+                                           Visibility="{Binding Path=IsTestMode, Converter={StaticResource typeToVisibilityConverterInverted}}"></TextBlock>
+                                <TextBlock Text="Test Mode" Visibility="{Binding Path=IsTestMode, Converter={StaticResource typeToVisibilityConverter}}"></TextBlock>
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6">
+                            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"
+                                        Visibility="{Binding Path=IsTestMode, Converter={StaticResource typeToVisibilityConverterInverted}}">
                                 <TextBlock Text="File Last Updated:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
                                 <TextBlock Text="{Binding Path=LatestFileUpdated, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
                                            TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                             </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"
+                                        Visibility="{Binding Path=IsTestMode, Converter={StaticResource typeToVisibilityConverter}}">
+                                <TextBlock Text="Last Test Elapsed:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=LastTestElapsedTime}" 
+                                           TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                            </StackPanel>
+
                         </Grid>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="4,4,4,4" Grid.Row="0" HorizontalAlignment="Right">
-                        <Button Name="uiButtonOpenLog" HorizontalAlignment="Left" Margin="16,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
-                                Height="18" ToolTip="Open the Logging tab"
-                                Click="UiButtonOpenLog_OnClick">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Style.Setters>
-                                        <Setter Property="Background" Value="Transparent"></Setter>
-                                        <Setter Property="BorderBrush" Value="Transparent"></Setter>
-                                    </Style.Setters>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Path=HasHalted}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"></Setter>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Path=HasHalted}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Image Name="uiImageAlert" Source="Images/glyphicons-505-alert.png"></Image>
-                        </Button>
+                    <StackPanel Orientation="Vertical" Grid.Row="0" Margin="4,4,4,4">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            
+                            <Button Name="uiButtonStart" HorizontalAlignment="Left" Margin="16,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
+                                    Height="18" ToolTip="Start the real-time parser" Click="UiButtonStart_OnClick">
+                                <Image Source="Images/glyphicons-174-play.png"></Image>
+                            </Button>
 
-                        <Button Name="uiButtonStart" HorizontalAlignment="Left" Margin="16,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
-                                Height="18" ToolTip="Start the real-time parser" Click="UiButtonStart_OnClick">
-                            <Image Source="Images/glyphicons-174-play.png"></Image>
-                        </Button>
+                            <Button Name="uiButtonEnd" HorizontalAlignment="Left" Margin="8,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
+                                    Height="18" ToolTip="Stop the real-time parser" Click="UiButtonEnd_OnClick">
+                                <Image Source="Images/glyphicons-176-stop.png"></Image>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                            <Button Name="uiButtonDisplayOverlay" Height="18" ToolTip="Show overlay"
+                                    Click="UiButtonDisplayOverlay_OnClick">
+                                <Image Source="Images/glyphicons-87-display.png"></Image>
+                            </Button>
 
-                        <Button Name="uiButtonEnd" HorizontalAlignment="Left" Margin="8,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
-                                Height="18" ToolTip="Stop the real-time parser" Click="UiButtonEnd_OnClick">
-                            <Image Source="Images/glyphicons-176-stop.png"></Image>
-                        </Button>
+                            <Button Name="uiButtonRefreshCombat" Height="18" Margin="8,0,0,0" ToolTip="Clear combat grid"
+                                    Click="UiButtonRefreshCombat_OnClick">
+                                <Image Source="Images/glyphicons-82-refresh.png"></Image>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
-                    <DataGrid Grid.Row="1" Margin="10,10,10,10" ItemsSource="{Binding Path=CurrentCombat.PlayerEntitiesOrderByName}" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
-              CanUserResizeRows="False" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AutoGenerateColumns="False">
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsInCombat}" Value="True">
-                                        <Setter Property="Foreground" Value="{StaticResource colorEventTypeMetricValue}"></Setter>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsInCombat}" Value="False">
-                                        <Setter Property="Foreground" Value="{StaticResource colorRejectedReason}"></Setter>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.RowStyle>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name"
-                                Binding="{Binding Path=OwnerDisplay}"
-                                IsReadOnly="True" SortDirection="Ascending" />
-                            <DataGridTextColumn Header="Damage"
-                                                Binding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}"
-                                                IsReadOnly="True" />
-                            <DataGridTextColumn Header="DPS"
-                                                Binding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}"
-                                                IsReadOnly="True" />
-                            <DataGridTextColumn Header="Kills"
-                                                Binding="{Binding Path=EntityCombatKills}"
-                                                IsReadOnly="True" />
-                            <DataGridTextColumn Header="Attacks"
-                                                Binding="{Binding Path=EntityCombatAttacks}"
-                                                IsReadOnly="True" />
-                            <DataGridTextColumn Header="Last Active"
-                                                Binding="{Binding Path=EntityCombatEnd, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}"
-                                                IsReadOnly="True" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Logging" Name="uiTabItemLogging">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <WrapPanel Orientation="Horizontal" Grid.Row="0" Margin="4,4,4,4">
+
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" Margin="4,4,4,4"
+                               Visibility="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, Path=IsDisplayToolsTab, Converter={StaticResource typeToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Lines last read: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="Lines read: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
                             <TextBlock Text="{Binding Path=LinesLastReadCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
-                            <TextBlock Text="Events last added: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="Events added: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
                             <TextBlock Text="{Binding Path=EventsLastAddCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
@@ -142,11 +106,183 @@
                             <TextBlock Text="{Binding Path=ErrorsCountSinceNewCombat}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                         </StackPanel>
                     </WrapPanel>
-                    <controls:LogControl Grid.Row="1"></controls:LogControl>
+
+                    <FrameworkElement Name="frameworkElementMetricsOverlayWindowContext" Grid.Row="2" Visibility="Collapsed"
+                                      DataContext="{x:Static classes:StoCombatRealtimeSettings.Instance}"/>
+                    
+                    <GroupBox Grid.Row="2">
+                        <GroupBox.Header>
+                            <WrapPanel Orientation="Horizontal">
+                                <TextBlock Text="Combat Grid:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0"
+                                            Visibility="{Binding Path=CurrentRealtimeCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <TextBlock Text="Events=" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                    <TextBlock Text="{Binding Path=CurrentRealtimeCombat.EventsCount}" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0"
+                                            Visibility="{Binding Path=CurrentRealtimeCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <TextBlock Text="Start=" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                    <TextBlock Text="{Binding Path=CurrentRealtimeCombat.CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}"
+                                               Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0"
+                                            Visibility="{Binding Path=CurrentRealtimeCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <TextBlock Text="Duration=" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                    <TextBlock Text="{Binding Path=CurrentRealtimeCombat.CombatDuration, ConverterParameter={StaticResource timeSpanMinSeconds}}"
+                                               Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                </StackPanel>
+                            </WrapPanel>
+                        </GroupBox.Header>
+                        <DataGrid Margin="2,2,2,2" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
+                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                  ItemsSource="{Binding Path=CurrentRealtimeCombat.PlayerEntitiesOrderByName}"
+                                  CanUserResizeRows="False" CanUserReorderColumns="True" CanUserResizeColumns="True" 
+                                  CanUserSortColumns="True" AutoGenerateColumns="False">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsInCombat}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource colorEventTypeMetricValue}"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsInCombat}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource colorRejectedReason}"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Path=OwnerDisplay}" IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Name" />
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayDamage, Mode=TwoWay}" 
+                                                ToolTip="Display Damage in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="Damage" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityMaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayMaxDamage, Mode=TwoWay}" 
+                                                      ToolTip="Display MaxDamage in the overlay grid"    VerticalAlignment="Center" />
+                                            <TextBlock Text="Max Damage" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayDps, Mode=TwoWay}" 
+                                                      ToolTip="Display DPS in the overlay grid"    VerticalAlignment="Center" />
+                                            <TextBlock Text="DPS" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityCombatAttacks}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayAttacks, Mode=TwoWay}" 
+                                                      ToolTip="Display Attacks in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="Attacks" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityCombatKills}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayKills, Mode=TwoWay}" 
+                                                      ToolTip="Display Kills in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="Kills" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityCombatStart, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayStart, Mode=TwoWay}" 
+                                                      ToolTip="Display StarTime in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="Start" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityCombatEnd, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, Path=DataContext.MetricsOverlayWindowContext.DisplayEnd, Mode=TwoWay}" 
+                                                      ToolTip="Display EndTime in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="End" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityCombatDuration, Converter={StaticResource combatTimeSpanToShortStringConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, 
+                                                Path=DataContext.MetricsOverlayWindowContext.DisplayDuration, Mode=TwoWay}" 
+                                                      ToolTip="Display Duration in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="Duration" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=EntityCombatInActive, Converter={StaticResource combatTimeSpanToShortStringConverter}}"
+                            IsReadOnly="True">
+                                    <DataGridTextColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding Source={x:Reference frameworkElementMetricsOverlayWindowContext}, 
+                                                Path=DataContext.MetricsOverlayWindowContext.DisplayInActive, Mode=TwoWay}" 
+                                                      ToolTip="Display InActiveTime in the overlay grid" VerticalAlignment="Center" />
+                                            <TextBlock Text="InActive" Margin="2,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Settings" DataContext="{Binding Source={x:Static properties:Settings.Default}}">
+            
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Notifications"></TextBlock>
+                        <Image Margin="4,0,0,0" Height="14" 
+                               Visibility="{Binding ElementName=uiLogControl, Path=MyContext.HighestResultLevel, Converter={StaticResource typeToVisibilityConverter}}"
+                               Source="{Binding ElementName=uiLogControl, Path=MyContext.HighestResultLevel, Converter={StaticResource resultLevelImageSourceConverter}}">
+                        </Image>
+                        <TextBlock Text="{Binding ElementName=uiLogControl, Path=MyContext.LogGridRows.Count}" Margin="4,0,0,0"
+                                   Visibility="{Binding ElementName=uiLogControl, Path=MyContext.HighestResultLevel, Converter={StaticResource typeToVisibilityConverter}}"></TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <controls:LogControl x:Name="uiLogControl" Grid.Row="1"></controls:LogControl>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Settings">
                 <controls:SettingsControl></controls:SettingsControl>
+            </TabItem>
+
+            <TabItem Header="Tools" Visibility="{Binding Source={x:Static classes:StoCombatRealtimeSettings.Instance}, Path=IsDisplayToolsTab, Converter={StaticResource typeToVisibilityConverter}}">
+                <controls:TestControl></controls:TestControl>
             </TabItem>
         </TabControl>
     </Grid>

@@ -11,7 +11,7 @@ using System.Windows.Data;
 namespace zxeltor.StoCombat.Realtime.Converters;
 
 /// <summary>
-///     Used to convert and object type into a boolean value.
+///     Used to convert and object playbackEnum into a boolean value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
 [ValueConversion(typeof(object), typeof(Boolean))]

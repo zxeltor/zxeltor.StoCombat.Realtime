@@ -11,7 +11,7 @@ using System.Windows.Media;
 namespace zxeltor.StoCombat.Realtime.Converters;
 
 /// <summary>
-///     Used to convert and object type into a UI Visibility value.
+///     Used to convert and object playbackEnum into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
 [ValueConversion(typeof(string), typeof(Brush))]

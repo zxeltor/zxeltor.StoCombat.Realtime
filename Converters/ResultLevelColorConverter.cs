@@ -12,18 +12,18 @@ using zxeltor.Types.Lib.Result;
 namespace zxeltor.StoCombat.Realtime.Converters;
 
 /// <summary>
-///     Used to convert and object type into a UI Visibility value.
+///     Used to convert and object playbackEnum into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
 [ValueConversion(typeof(ResultLevel), typeof(Brush))]
 public class ResultLevelColorConverter : IValueConverter
 {
     #region Private Fields
-    private readonly Brush _colorHalt = new SolidColorBrush(Colors.Red);
-    private readonly Brush _colorError = new SolidColorBrush(Colors.Orange);
-    private readonly Brush _colorWarning = new SolidColorBrush(Colors.Yellow);
+    private readonly Brush _colorDebug = new SolidColorBrush(Colors.Purple);
     private readonly Brush _colorInfo = new SolidColorBrush(Colors.Green);
-    private readonly Brush _colorDebug = new SolidColorBrush(Colors.Blue);
+    private readonly Brush _colorWarning = new SolidColorBrush(Colors.Orange);
+    private readonly Brush _colorError = new SolidColorBrush(Colors.Red);
+    private readonly Brush _colorHalt = new SolidColorBrush(Colors.Maroon);
     private readonly Brush _colorNotFound = new SolidColorBrush(Colors.Gray);
     #endregion
 

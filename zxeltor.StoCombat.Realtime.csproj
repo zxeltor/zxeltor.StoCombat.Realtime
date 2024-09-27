@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.12.0.0</AssemblyVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <AssemblyName>StoCombatRealtime</AssemblyName>
     <ApplicationIcon>Images\sto-realtime-128.ico</ApplicationIcon>
   </PropertyGroup>
@@ -15,7 +15,6 @@
     <None Remove="AudioFiles\dominating.mp3" />
     <None Remove="AudioFiles\doublekill.mp3" />
     <None Remove="AudioFiles\firstblood.mp3" />
-    <None Remove="AudioFiles\flawlessvictory.mp3" />
     <None Remove="AudioFiles\godlike.mp3" />
     <None Remove="AudioFiles\holyshit.mp3" />
     <None Remove="AudioFiles\killingspree.mp3" />
@@ -24,19 +23,34 @@
     <None Remove="AudioFiles\monsterkill.mp3" />
     <None Remove="AudioFiles\multikill.mp3" />
     <None Remove="AudioFiles\pacmandies.mp3" />
-    <None Remove="AudioFiles\prepareforbattle.mp3" />
     <None Remove="AudioFiles\rampage.mp3" />
     <None Remove="AudioFiles\triplekill.mp3" />
     <None Remove="AudioFiles\ultrakill.mp3" />
     <None Remove="AudioFiles\unreal.mp3" />
     <None Remove="AudioFiles\unstoppable.mp3" />
     <None Remove="AudioFiles\wickedsick.mp3" />
+    <None Remove="Images\glyphicons-152-new-window.png" />
     <None Remove="Images\glyphicons-174-play.png" />
     <None Remove="Images\glyphicons-176-stop.png" />
     <None Remove="Images\glyphicons-240-albums.png" />
+    <None Remove="Images\glyphicons-281-settings.png" />
     <None Remove="Images\glyphicons-505-alert.png" />
     <None Remove="Images\glyphicons-82-refresh.png" />
     <None Remove="Images\glyphicons-87-display.png" />
+    <None Remove="Images\glyphicons-alert-blue.png" />
+    <None Remove="Images\glyphicons-alert-darkgreen.png" />
+    <None Remove="Images\glyphicons-alert-grey.png" />
+    <None Remove="Images\glyphicons-alert-maroon.png" />
+    <None Remove="Images\glyphicons-alert-orange.png" />
+    <None Remove="Images\glyphicons-alert-purple.png" />
+    <None Remove="Images\glyphicons-alert-red.png" />
+    <None Remove="Images\glyphicons-pending-notification-blue.png" />
+    <None Remove="Images\glyphicons-pending-notification-darkgreen.png" />
+    <None Remove="Images\glyphicons-pending-notification-grey.png" />
+    <None Remove="Images\glyphicons-pending-notification-orange.png" />
+    <None Remove="Images\glyphicons-pending-notification-purple.png" />
+    <None Remove="Images\glyphicons-pending-notification-red.png" />
+    <None Remove="Images\glyphicons-pending-notification-yellow.png" />
     <None Remove="Images\sto-realtime-128.ico" />
     <None Remove="Images\sto-realtime-128.png" />
     <None Remove="Log4Net.config" />
@@ -50,9 +64,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="AudioFiles\firstblood.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="AudioFiles\flawlessvictory.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="AudioFiles\godlike.mp3">
@@ -77,9 +88,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="AudioFiles\pacmandies.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="AudioFiles\prepareforbattle.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="AudioFiles\rampage.mp3">
@@ -107,16 +115,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\zxeltor.StoCombat.Lib\zxeltor.StoCombat.Lib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Resource Include="Images\glyphicons-152-new-window.png" />
     <Resource Include="Images\glyphicons-174-play.png" />
     <Resource Include="Images\glyphicons-176-stop.png" />
     <Resource Include="Images\glyphicons-240-albums.png" />
+    <Resource Include="Images\glyphicons-281-settings.png" />
     <Resource Include="Images\glyphicons-505-alert.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
     <Resource Include="Images\glyphicons-87-display.png" />
+    <Resource Include="Images\glyphicons-alert-blue.png" />
+    <Resource Include="Images\glyphicons-alert-darkgreen.png" />
+    <Resource Include="Images\glyphicons-alert-grey.png" />
+    <Resource Include="Images\glyphicons-alert-maroon.png" />
+    <Resource Include="Images\glyphicons-alert-orange.png" />
+    <Resource Include="Images\glyphicons-alert-purple.png" />
+    <Resource Include="Images\glyphicons-alert-red.png" />
+    <Resource Include="Images\glyphicons-pending-notification-blue.png" />
+    <Resource Include="Images\glyphicons-pending-notification-darkgreen.png" />
+    <Resource Include="Images\glyphicons-pending-notification-grey.png" />
+    <Resource Include="Images\glyphicons-pending-notification-orange.png" />
+    <Resource Include="Images\glyphicons-pending-notification-purple.png" />
+    <Resource Include="Images\glyphicons-pending-notification-red.png" />
+    <Resource Include="Images\glyphicons-pending-notification-yellow.png" />
     <Resource Include="Images\sto-realtime-128.ico" />
     <Resource Include="Images\sto-realtime-128.png" />
   </ItemGroup>
@@ -149,7 +169,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\Logging\" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.1" />
+    <PackageReference Include="zxeltor.StoCombat.Lib" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

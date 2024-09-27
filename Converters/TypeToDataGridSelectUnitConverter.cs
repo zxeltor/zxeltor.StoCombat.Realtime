@@ -12,7 +12,7 @@ using System.Windows.Data;
 namespace zxeltor.StoCombat.Realtime.Converters;
 
 /// <summary>
-///     Used to convert and object type into a GridSelectUnit value.
+///     Used to convert and object playbackEnum into a GridSelectUnit value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
 [ValueConversion(typeof(object), typeof(DataGridSelectionUnit))]
