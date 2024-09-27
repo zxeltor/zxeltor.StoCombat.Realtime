@@ -21,7 +21,7 @@ You could also run the dotnet cli build and run commands from inside the zxeltor
 
 ## Screen Shots
 Figure 1: What the UI looks like after a successfull parse, and a combat instance was selected in the Combat List dropdown.
-![The main tab](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/zxeltor.StoCombat.Realtime/Images/ScreenShots/overlays_scaled.jpg)
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg))
 
 ---
 
