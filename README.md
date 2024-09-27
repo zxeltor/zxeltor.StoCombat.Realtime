@@ -1,6 +1,6 @@
 # Star Trek Online Combat Real-Time Display
 
-![The main tab](zxeltor.StoCombat.Realtime/Images/sto-realtime-128.png)
+![The main tab](Images/sto-realtime-128.png)
 
 * [Overview](#overview)
 * [Building](#building)
