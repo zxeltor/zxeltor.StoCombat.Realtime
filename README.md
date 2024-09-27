@@ -9,11 +9,8 @@ An application which tracks Star Trek Online combat data in real-time, and award
 * [Screen Shots](#screen-shots)
 * [Disclaimer](#disclaimer)
 
----
 ## Overview
 This application tracks player kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
-
----
 
 ## Details 
 The addon maintains a list of units attacked by the player while in combat. Each unit killed by the player while in combat is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
@@ -47,7 +44,6 @@ Awards for building up chains of kills in quick succession (4 seconds apart or l
 * Ludicrous Kill - 7 kills
 * HOLY S**T - 8+ kills
 
----
 ## Building
 The source in this repo is wrapped up in a Visual Studio 2022 solution. You should be able to clone this repo localy, then build and run from inside of Visual Studio.
 
