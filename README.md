@@ -17,7 +17,7 @@ The application provides real-time combat details for Star Trek Online.  The app
 
 On top of the combat statistics, another fun feature was added. The application tracks player kills, and awards the player with Unreal Tournament style achievements. Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
 
-This is a companion project of [STOCombatAnalyzer](https://github.com/zxeltor/STOCombatAnalyzer). This application provides a more detailed analysis of past combat log data.
+This is a companion project of [STOCombatAnalyzer](https://github.com/zxeltor/STOCombatAnalyzer). STOCombatAnalyzer provides a more detailed analysis of past combat log data.
 
 ## Download
 The installer uses Click-Once technology. This means you should only have to download and install this app once. The app checks with the server each time it's launched, and gives the user the option to automatically download and install available updates. This saves the user from constantly having to manually download and install newer versions.
