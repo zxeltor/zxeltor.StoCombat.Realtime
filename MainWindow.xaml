@@ -8,7 +8,7 @@
         xmlns:classes="clr-namespace:zxeltor.StoCombat.Realtime.Classes"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type classes:RealtimeCombatLogMonitor}}"
-        Title="MainWindow" MinHeight="300" MinWidth="440" Height="700" Width="700" d:DesignHeight="600" Name="uiMainWindow">
+        Title="MainWindow" MinHeight="300" MinWidth="440" Height="700" Width="700" d:DesignHeight="600" Name="uiMainWindow" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ResourceDictionary Source="Styles/StoCombatResourceDictionary.xaml"></ResourceDictionary>
     </Window.Resources>
