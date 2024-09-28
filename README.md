@@ -36,7 +36,7 @@ The grid overlay is what displays the combat statistics grid. Each player in com
 The main UI has a settings tab so the user can select which statistics to display in the grid, what colors to use, and its location on the screen.
 
 ### Achievements System and Overlay
-![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.png)
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.png)                                  
 **Figure:** The DOUBLE KILL achievement being flashed to the screen.
 
 The achievements system maintains a list of units attacked by the player while in combat. Each unit killed by the player is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with audio file playback from the Unreal Tournament Announcer.
