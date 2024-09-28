@@ -2,7 +2,9 @@
 
 An application which tracks Star Trek Online combat data in real-time, and awards the player with Unreal Tournament style achievements.
 
+
 **Figure:** What the application overlays look like on top of STO. You can see the DOUBLE KILL achievement overlay high center screen, and the real-time combat data grid in the upper right.
+
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg)
 
 * [Overview](#overview)
