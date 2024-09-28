@@ -17,19 +17,25 @@ On top of the combat statistics, another fun feature was added. The application 
 ## Details 
 
 ### The main ui
+Figure: The main application window.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui_top.png)
 
-The main UI is mostly a monitoring tool for the background real-time combat log parser. You can do the following in the main UI.
+The main UI is mostly a monitoring tool for the background real-time combat log parser. You can display it on another screen, or just run it minimized.
+
+You can do the following in the main UI:
 * Start and Stop the background parser.
 * Enable the Grid Overlay, and modify its settings.
 * Enable the achievement system and overlay, and modify its settings.
 
 ### Grid Overlay
+Figure: The main grid overlay displayed in the upper right of the screen.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/grid_overlay.png)
 
-The grid overlay is what displays the combat statistics grid. The main UI has a settings tab which allows the user to select what statistics to display in the grid, what colors to use, and its location on the screen.
+The grid overlay is what displays the combat statistics grid. Each player in combat is displayed in the grid. 
+The main UI has a settings tab so the user can select which statistics to display in the grid, what colors to use, and its location on the screen.
 
 ### Achievements System and Overlay
+Figure: The DOUBLE KILL achievement being flashed to the screen.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.png)
 
 The achievements system maintains a list of units attacked by the player while in combat. Each unit killed by the player is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with audio file playback from the Unreal Tournament Announcer.
