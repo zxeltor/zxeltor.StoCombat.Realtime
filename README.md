@@ -18,7 +18,7 @@ On top of the combat statistics, another fun feature was added. The application 
 ## Details 
 
 ### The main ui
-![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui_top.png)
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui_top.png)                                  
 **Figure:** The main application window.
 
 The main UI is mostly a monitoring tool for the background real-time combat log parser. You can display it on another screen, or just run it minimized.
