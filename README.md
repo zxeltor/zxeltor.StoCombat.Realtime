@@ -10,19 +10,30 @@ An application which tracks Star Trek Online combat data in real-time, and award
 * [Disclaimer](#disclaimer)
 
 ## Overview
-This application tracks player kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
+The application provides real-time combat details for Star Trek Online.  The application provides a semi transparent overlay which provides a data grid of available combat statistics for all players in combat.
+
+On top of the combat statistics, another fun feature was added. The application tracks player kills, and awards the player with Unreal Tournament style achievements. Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
 
 ## Details 
-The addon maintains a list of units attacked by the player while in combat. Each unit killed by the player while in combat is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
+
+### The main ui
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui.png)
+The main UI is mostly a monitoring tool for the background real-time combat log parser. You can do the following in the main UI.
+* Start and Stop the background parser.
+* Enable the Grid Overlay, and modify its settings.
+* Enable the achievement system and overlay, and modify its settings.
+
+### Grid Overlay
+The grid overlay is what displays the combat statistics grid. The main UI has a settings tab which allows the user to select what statistics to display in the grid, what colors to use, and its location on the screen.
+
+### Achievements System and Overlay
+The achievements system maintains a list of units attacked by the player while in combat. Each unit killed by the player is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with audio file playback from the Unreal Tournament Announcer.
 
 Your consecutive kill count is reset after you've been out of combat for a configured amount of time, or when your player dies. This puts you back at the bottom of the achievement list.
 
-__Note(s):__
-* If you attack a unit, then leave combat with the unit before they die, you won't get credit for the kill.
+#### Kill Scoring 
 
-## Kill Scoring 
-
-### Killing Sprees
+##### Killing Sprees
 Awards for every 5th kill without dying
 
 * Killing Spree - 5 kills
@@ -32,7 +43,7 @@ Awards for every 5th kill without dying
 * Godlike - 25 kills
 * Wicked Sick - 30+ kills
 
-### Multiple Kills
+##### Multiple Kills
 Awards for building up chains of kills in quick succession (4 seconds apart or less)
 
 * Double Kill - 2 kills
