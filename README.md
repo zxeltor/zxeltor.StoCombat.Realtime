@@ -19,7 +19,7 @@ On top of the combat statistics, another fun feature was added. The application 
 This is a companion project of [STOCombatAnalyzer](https://github.com/zxeltor/STOCombatAnalyzer). This application provides a more detailed analysis of past combat log data.
 
 ## Download
-The installer uses Click-Once technology. This means you should only have to download and install this app once. The app checks with the server each time it's launched, and gives the user the option to automatically download and update the app in the background. This saves the user from constantly having to manually download and install newer versions.
+The installer uses Click-Once technology. This means you should only have to download and install this app once. The app checks with the server each time it's launched, and gives the user the option to automatically download and install available updates. This saves the user from constantly having to manually download and install newer versions.
 
 [Download](https://starfleet.engineer/StoCombatRealtime/Installer/setup.exe)
 
