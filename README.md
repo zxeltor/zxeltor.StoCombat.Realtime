@@ -31,7 +31,7 @@ The installer uses Click-Once technology. This means you should only have to dow
 ## Details 
 
 ### The main ui
-![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui_top.png)                                  
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui_top.jpg)                                  
 **Figure:** The main application window.
 
 The main UI is mostly a monitoring tool for the background real-time combat log parser. You can display it on another screen, or just run it minimized.
@@ -42,7 +42,7 @@ You can do the following in the main UI:
 * Enable the achievement system and overlay, and modify its settings.
 
 ### Grid Overlay
-![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/grid_overlay.png)
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/grid_overlay.jpg)
 **Figure:** The main grid overlay displayed in the upper right of the screen.
 
 **Note:** In order for the Grid Overlay to work in STO, the game needs to be running in a Window display mode
@@ -51,7 +51,7 @@ The grid overlay is what displays the combat statistics grid. Each player in com
 The main UI has a settings tab so the user can select which statistics to display in the grid, what colors to use, and its location on the screen.
 
 ### Achievements System and Overlay
-![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.png)                                  
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.jpg)                                  
 **Figure:** The DOUBLE KILL achievement being flashed to the screen.
 
 **Note:** In order for the Achievments overlay to work in STO, the game needs to be running in a Window display mode
@@ -94,7 +94,7 @@ Figure: What the application overlays look like on top of STO. You can see the D
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg)
 
 Figure: The main application UI. Use this to configure achievment processing, and the overlay settings.
-![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui.png)
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui.jpg)
 
 ## Disclaimer
 This software and any related documentation is provided “as is” without warranty of any kind, either express or implied, including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. Licensee accepts any and all risk arising out of use or performance of Software
