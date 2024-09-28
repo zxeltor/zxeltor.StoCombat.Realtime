@@ -2,7 +2,7 @@
 
 An application which tracks Star Trek Online combat data in real-time, and awards the player with Unreal Tournament style achievements.
 
-![The main tab](Images/sto-realtime-128.png)
+![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg)
 
 * [Overview](#overview)
 * [Building](#building)
