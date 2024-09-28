@@ -45,20 +45,18 @@ You can do the following in the main UI:
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/grid_overlay.jpg)
 **Figure:** The main grid overlay displayed in the upper right of the screen.
 
-**Note:** In order for the Grid Overlay to work in STO, the game needs to be running in a Window display mode
-
 The grid overlay is what displays the combat statistics grid. Each player in combat is displayed in the grid. 
 The main UI has a settings tab so the user can select which statistics to display in the grid, what colors to use, and its location on the screen.
+
+**Note:** In order for the Grid Overlay to work in STO, the game needs to be running in a Window display mode.
 
 ### Achievements System and Overlay
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.jpg)                                  
 **Figure:** The DOUBLE KILL achievement being flashed to the screen.
 
-**Note:** In order for the Achievments overlay to work in STO, the game needs to be running in a Window display mode
+The achievements system maintains a list of units attacked by the player while in combat. Each unit killed by the player is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with audio file playback from the Unreal Tournament Announcer. Your consecutive kill count is reset after you've been out of combat for a configured amount of time, or when your player dies. This puts you back at the bottom of the achievement list.
 
-The achievements system maintains a list of units attacked by the player while in combat. Each unit killed by the player is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with audio file playback from the Unreal Tournament Announcer.
-
-Your consecutive kill count is reset after you've been out of combat for a configured amount of time, or when your player dies. This puts you back at the bottom of the achievement list.
+**Note:** In order for the Achievments overlay to work in STO, the game needs to be running in a Window display mode.
 
 #### Kill Scoring 
 
