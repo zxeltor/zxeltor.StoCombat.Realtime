@@ -1,4 +1,4 @@
-# Star Trek Online Combat Real-Time Display
+# Star Trek Online Real-Time Combat Overlay
 
 An application which tracks Star Trek Online combat data in real-time, and awards the player with Unreal Tournament style achievements.
 
