@@ -1,4 +1,4 @@
-# Star Trek Online Real-Time Combat Overlay
+# STO Real-Time Combat Overlay [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zxeltor.StoCombat.Realtime)](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/releases/latest)
 
 An application which tracks Star Trek Online combat data in real-time, and awards the player with Unreal Tournament style achievements.
 
