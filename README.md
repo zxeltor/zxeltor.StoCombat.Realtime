@@ -2,10 +2,8 @@
 
 An application which tracks Star Trek Online combat data in real-time, and awards the player with Unreal Tournament style achievements.
 
-
-**Figure:** What the application overlays look like on top of STO. You can see the DOUBLE KILL achievement overlay high center screen, and the real-time combat data grid in the upper right.
-
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/overlays_scaled.jpg)
+**Figure:** What the application overlays look like on top of STO. You can see the DOUBLE KILL achievement overlay high center screen, and the real-time combat data grid in the upper right.
 
 * [Overview](#overview)
 * [Building](#building)
@@ -20,8 +18,8 @@ On top of the combat statistics, another fun feature was added. The application 
 ## Details 
 
 ### The main ui
-**Figure:** The main application window.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/ui_top.png)
+**Figure:** The main application window.
 
 The main UI is mostly a monitoring tool for the background real-time combat log parser. You can display it on another screen, or just run it minimized.
 
@@ -31,15 +29,15 @@ You can do the following in the main UI:
 * Enable the achievement system and overlay, and modify its settings.
 
 ### Grid Overlay
-**Figure:** The main grid overlay displayed in the upper right of the screen.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/grid_overlay.png)
+**Figure:** The main grid overlay displayed in the upper right of the screen.
 
 The grid overlay is what displays the combat statistics grid. Each player in combat is displayed in the grid. 
 The main UI has a settings tab so the user can select which statistics to display in the grid, what colors to use, and its location on the screen.
 
 ### Achievements System and Overlay
-**Figure:** The DOUBLE KILL achievement being flashed to the screen.
 ![Overlays](https://github.com/zxeltor/zxeltor.StoCombat.Realtime/blob/master/ScreenShots/doublekill_overlay.png)
+**Figure:** The DOUBLE KILL achievement being flashed to the screen.
 
 The achievements system maintains a list of units attacked by the player while in combat. Each unit killed by the player is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with audio file playback from the Unreal Tournament Announcer.
 
