@@ -7,7 +7,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.StoCombat.Realtime.Helpers;
 using zxeltor.StoCombat.Realtime.Properties;
 using zxeltor.Types.Lib.Helpers;
 using zxeltor.Types.Lib.Result;
@@ -65,6 +67,7 @@ public sealed class StoCombatRealtimeSettings : INotifyPropertyChanged, IDisposa
     /// <summary>
     ///     A private constructor to block creating instances outside the singleton pattern.
     /// </summary>
+    [JsonConstructor]
     private StoCombatRealtimeSettings()
     {
         this._parseSettings.PropertyChanged += this.ParseSettingsOnPropertyChanged;
@@ -128,7 +131,7 @@ public sealed class StoCombatRealtimeSettings : INotifyPropertyChanged, IDisposa
     public static StoCombatRealtimeSettings FromAppConfig()
     {
         if (string.IsNullOrWhiteSpace(Settings.Default.StoCombatRealtimeSettings) ||
-            !SerializationHelper.TryDeserializeString<StoCombatRealtimeSettings>(
+            !ConfigSerializationHelper.TryDeserializeString<StoCombatRealtimeSettings>(
                 Settings.Default.StoCombatRealtimeSettings, out var settings) || settings == null)
         {
             var context = new StoCombatRealtimeSettings();
@@ -143,7 +146,7 @@ public sealed class StoCombatRealtimeSettings : INotifyPropertyChanged, IDisposa
 
     public void SaveToAppConfig()
     {
-        var thisAsString = SerializationHelper.Serialize(this);
+        var thisAsString = ConfigSerializationHelper.Serialize(this);
         Settings.Default.StoCombatRealtimeSettings = thisAsString;
         Settings.Default.Save();
     }

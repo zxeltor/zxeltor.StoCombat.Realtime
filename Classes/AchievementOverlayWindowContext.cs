@@ -4,10 +4,14 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using log4net;
+
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Windows.Media;
-using log4net;
+
+using zxeltor.StoCombat.Realtime.Helpers;
 
 namespace zxeltor.StoCombat.Realtime.Classes;
 
@@ -15,7 +19,7 @@ public class AchievementOverlayWindowContext : INotifyPropertyChanged
 {
     #region Static Fields and Constants
 
-    private static readonly ILog Log = LogManager.GetLogger(typeof(MetricsOverlayWindowContext));
+    private static readonly ILog Log = LogManager.GetLogger(typeof(AchievementOverlayWindowContext));
 
     #endregion
 
@@ -45,12 +49,14 @@ public class AchievementOverlayWindowContext : INotifyPropertyChanged
         set => this.SetField(ref this._overlayWindowTop, value);
     }
 
+    [JsonConverter(typeof(SolidColorBrushConverter))]
     public SolidColorBrush? DropShadowColorBrush
     {
         get => this._dropShadowColorBrush;
         set => this.SetField(ref this._dropShadowColorBrush, value);
     }
 
+    [JsonConverter(typeof(SolidColorBrushConverter))]
     public SolidColorBrush? TextColorBrush
     {
         get => this._textColorBrush;

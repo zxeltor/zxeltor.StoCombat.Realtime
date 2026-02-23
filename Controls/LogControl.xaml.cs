@@ -17,8 +17,8 @@ using log4net.Core;
 using zxeltor.StoCombat.Lib.Classes;
 using zxeltor.StoCombat.Realtime.Classes;
 using zxeltor.Types.Lib.Collections;
-using zxeltor.Types.Lib.Helpers;
-using zxeltor.Types.Lib.Logging;
+using zxeltor.StoCombat.Lib.Helpers;
+using zxeltor.StoCombat.Lib.Logging;
 using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombat.Realtime.Controls;
@@ -44,7 +44,7 @@ public partial class LogControl : UserControl
         this.DataContext = this.MyContext = new LogControlDataContext(this.Dispatcher);
 
         // Attach our custom log4net appender, so we can handle log messages as notifications in the application.
-        if (LoggingHelper.TryAddingLoggingEventAppender("ui_event_appender", out var appender) && appender != null)
+        if (Log4NetHelper.TryAddingLoggingEventAppender("ui_event_appender", out var appender) && appender != null)
         {
             this._loggingEventAppender = appender;
             this._loggingEventAppender.LoggingEvent += this.AppenderOnLoggingEvent;

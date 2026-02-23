@@ -5,7 +5,6 @@
 // LICENSE file in the root directory of this source tree.
 
 using zxeltor.StoCombat.Lib.Classes;
-using zxeltor.Types.Lib.Logging;
 using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombat.Realtime.Classes;

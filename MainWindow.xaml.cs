@@ -4,14 +4,17 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using log4net;
+
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using log4net;
+
 using zxeltor.StoCombat.Lib.Classes;
+using zxeltor.StoCombat.Lib.Helpers;
 using zxeltor.StoCombat.Realtime.Classes;
 using zxeltor.StoCombat.Realtime.Controls;
 using zxeltor.Types.Lib.Helpers;
@@ -43,7 +46,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public MainWindow()
     {
-        if (LoggingHelper.TryConfigureLog4NetLogging(out var isUsingDevelopmentConfig))
+        if (Log4NetHelper.TryConfigureLog4NetLogging(out var isUsingDevelopmentConfig))
             AppCommunicationsManager.Instance.SendNotification(this,
                 isUsingDevelopmentConfig
                     ? "Logging has been configured using Log4Net.Development.config."
@@ -159,7 +162,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void SetLoggingLevel()
     {
-        LoggingHelper.TrySettingLog4NetLogLevel(StoCombatRealtimeSettings.Instance.IsEnableDebugLogging);
+        Log4NetHelper.TrySettingLog4NetLogLevel(StoCombatRealtimeSettings.Instance.IsEnableDebugLogging);
     }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

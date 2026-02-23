@@ -4,12 +4,15 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using log4net;
+
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Windows.Media;
-using log4net;
-using Newtonsoft.Json;
+
 using zxeltor.StoCombat.Lib.Model.Realtime;
+using zxeltor.StoCombat.Realtime.Helpers;
 
 namespace zxeltor.StoCombat.Realtime.Classes;
 
@@ -136,24 +139,28 @@ public class MetricsOverlayWindowContext : INotifyPropertyChanged
         set => this.SetField(ref this._testRealtimeCombat, value);
     }
 
+    [JsonConverter(typeof(SolidColorBrushConverter))]
     public SolidColorBrush? BackgroundColorBrush
     {
         get => this._backgroundColorBrush;
         set => this.SetField(ref this._backgroundColorBrush, value);
     }
 
+    [JsonConverter(typeof(SolidColorBrushConverter))]
     public SolidColorBrush? HeaderTextColorBrush
     {
         get => this._headerTextColorBrush;
         set => this.SetField(ref this._headerTextColorBrush, value);
     }
 
+    [JsonConverter(typeof(SolidColorBrushConverter))]
     public SolidColorBrush? OutOfCombatTextColorBrush
     {
         get => this._outOfCombatTextColorBrush;
         set => this.SetField(ref this._outOfCombatTextColorBrush, value);
     }
 
+    [JsonConverter(typeof(SolidColorBrushConverter))]
     public SolidColorBrush? TextColorBrush
     {
         get => this._textColorBrush;
